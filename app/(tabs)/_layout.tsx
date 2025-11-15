@@ -34,7 +34,7 @@ const TabLayout = () => {
         <Tabs.Screen
           name="journal"
           options={{
-            title: "Log",
+            title: "Journal",
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="clipboard" size={size} color={color} />
             ),
