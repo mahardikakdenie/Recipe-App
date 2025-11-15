@@ -14,5 +14,8 @@ const RecipeScreen = (props: RecipeScreenProps) => {
 export default RecipeScreen;
 
 const styles = StyleSheet.create({
-  container: {}
+  container: {
+    paddingTop: 100,
+    paddingHorizontal: 30,
+  }
 });
