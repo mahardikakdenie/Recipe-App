@@ -50,11 +50,11 @@ const Index = () => {
       <View style={styles.mainCard}>
         <View style={styles.cardContent}>
           <View style={styles.badgeHighlight}>
-            <Text style={styles.badgeTextSmall}>✨ Get Started</Text>
+            <Text style={styles.badgeTextSmall}>✨ Discover More</Text>
           </View>
-          <Text style={styles.cardTitle}>Personalise Your Meal Plan</Text>
+          <Text style={styles.cardTitle}>Explore Tasty Recipes</Text>
           <Text style={styles.cardSubtitle}>
-            Tell us your preferences so we can craft meals just for you.
+            Discover delicious meals crafted just for you.
           </Text>
           <Pressable
             style={({ pressed }) => [
@@ -62,7 +62,7 @@ const Index = () => {
               pressed && { opacity: 0.9 },
             ]}
           >
-            <Text style={styles.actionButtonText}>Start Personalising</Text>
+            <Text style={styles.actionButtonText}>Explore Recipes</Text>
           </Pressable>
         </View>
         <View style={styles.imageWrapper}>
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingTop: 60,
-    paddingBottom: 100, // ✅ cukup untuk tab bar + jarak nyaman
+    paddingBottom: 100,
   },
   header: {
     flexDirection: 'row',
@@ -236,7 +236,6 @@ const styles = StyleSheet.create({
   },
   menuList: {
     paddingHorizontal: 20,
-    // ✅ paddingBottom dihapus — di-handle oleh scrollContent
   },
   menuCard: {
     flexDirection: 'row',
