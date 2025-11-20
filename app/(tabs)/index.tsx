@@ -1,8 +1,25 @@
+import apiClient from '../../src/api/client';
 import { Inter_400Regular, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, Pressable, TouchableOpacity, ScrollView } from 'react-native';
+
+const SkeletonCard = () => (
+  <View style={styles.skeletonCard}>
+    <View style={styles.skeletonImage} />
+    <View style={styles.skeletonContent}>
+      <View style={[styles.skeletonLine, { width: '70%', height: 18, marginBottom: 8 }]} />
+      <View style={[styles.skeletonLine, { width: '50%', height: 14, marginBottom: 6 }]} />
+      <View style={[styles.skeletonLine, { width: '40%', height: 12 }]} />
+      <View style={styles.skeletonMetaRow}>
+        <View style={[styles.skeletonMetaItem, { width: 60 }]} />
+        <View style={[styles.skeletonMetaItem, { width: 50 }]} />
+        <View style={[styles.skeletonMetaItem, { width: 45 }]} />
+      </View>
+    </View>
+  </View>
+);
 
 const Index = () => {
   const [fontsLoaded] = useFonts({
@@ -11,18 +28,42 @@ const Index = () => {
     Inter_700Bold,
   });
 
+  const [lunchMenus, setLunchMenus] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRecipes = async () => {
+      try {
+        const data = await apiClient('/', { limit: 5 });
+        if (data && Array.isArray(data.recipes)) {
+          setLunchMenus(data.recipes.map((item: any) => ({
+            id: item.id || Math.random(),
+            name: item.name || 'Untitled Recipe',
+            image: item.image || 'https://via.placeholder.com/150',
+            rating: item.rating || 0,
+            prepTimeMinutes: item.prepTimeMinutes || 0,
+            cookTimeMinutes: item.cookTimeMinutes || 0,
+            servings: item.servings || 1,
+            cuisine: item.cuisine || 'Unknown',
+            saved: item.saved ?? false,
+            color: item.color || '#FFFFFF',
+          })));
+        }
+      } catch (error) {
+        console.error('Failed to load recipes:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecipes();
+  }, []);
+
+  const savedCount = lunchMenus.filter(item => item.saved).length;
+
   if (!fontsLoaded) {
     return null;
   }
-
-  const savedCount = 3;
-
-  const lunchMenus = [
-    { name: 'Grilled Salmon Bowl', image: "https://vjcooks.com/wp-content/uploads/2025/05/VJcooks_GrilledHoneySoySalmonBowls_2.jpg", description: 'Fresh salmon with quinoa and greens.', color: '#FFE0E6', saved: true },
-    { name: 'Chicken Teriyaki', image: 'https://www.recipetineats.com/tachyon/2014/07/Teriyaki-Chicken-1.jpg?resize=680%2C936&zoom=0.95', description: 'Tender chicken glazed in sweet teriyaki sauce.', color: '#E0F0FF', saved: true },
-    { name: 'Vegetable Stir Fry', image: 'https://www.recipetineats.com/tachyon/2020/01/Vegetable-Stir-Fry_9.jpg?resize=900%2C1260&zoom=0.72', description: 'Colorful veggies in a light soy-ginger sauce.', color: '#E6F9E0', saved: false },
-    { name: 'Beef Tacos', image: 'https://www.recipetineats.com/tachyon/2018/11/Beef-Tacos_2.jpg?resize=900%2C1125&zoom=0.72', description: 'Spiced beef with fresh salsa and avocado.', color: '#FFF0E0', saved: true },
-  ];
 
   return (
     <ScrollView
@@ -31,9 +72,7 @@ const Index = () => {
     >
       <View style={styles.header}>
         <View style={styles.titleRow}>
-          <Text style={styles.headerTitle}>
-            Meal Plan
-          </Text>
+          <Text style={styles.headerTitle}>Meal Plan</Text>
           <AntDesign name="fire" size={22} color="#FF6B35" />
         </View>
 
@@ -56,20 +95,13 @@ const Index = () => {
           <Text style={styles.cardSubtitle}>
             Discover delicious meals crafted just for you.
           </Text>
-          <Pressable
-            style={({ pressed }) => [
-              styles.actionButton,
-              pressed && { opacity: 0.9 },
-            ]}
-          >
+          <Pressable style={({ pressed }) => [styles.actionButton, pressed && { opacity: 0.9 }]}>
             <Text style={styles.actionButtonText}>Explore Recipes</Text>
           </Pressable>
         </View>
         <View style={styles.imageWrapper}>
           <Image
-            source={{
-              uri: 'https://cdn-icons-png.freepik.com/512/9173/9173213.png?ga=GA1.1.887243274.1762007492',
-            }}
+            source={{ uri: 'https://cdn-icons-png.freepik.com/512/9173/9173213.png?ga=GA1.1.887243274.1762007492' }}
             style={styles.chefImage}
             resizeMode="contain"
           />
@@ -84,31 +116,49 @@ const Index = () => {
       </View>
 
       <View style={styles.menuList}>
-        {lunchMenus.map((item, index) => (
-          <View key={index} style={[styles.menuCard, { backgroundColor: item.color }]}>
-            <Image
-              source={{ uri: item.image }}
-              style={styles.menuImage}
-              resizeMode="cover"
-            />
-            <View style={styles.menuContent}>
-              <View style={styles.menuActions}>
-                <Pressable>
-                  <Ionicons
-                    name={item.saved ? 'heart' : 'heart-outline'}
-                    color={item.saved ? '#FF6B35' : '#888888'}
-                    size={22}
-                  />
-                </Pressable>
-                <Pressable style={styles.addButton}>
-                  <Ionicons name="add" color="#2D2D2D" size={18} />
-                </Pressable>
+        {loading
+          ? Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
+          : lunchMenus.map((item) => (
+              <View key={item.id} style={[styles.menuCard, { backgroundColor: item.color }]}>
+                <Image source={{ uri: item.image }} style={styles.menuImage} resizeMode="cover" />
+                <View style={styles.menuContent}>
+                  <View style={styles.menuActions}>
+                    <Pressable>
+                      <Ionicons
+                        name={item.saved ? 'heart' : 'heart-outline'}
+                        color={item.saved ? '#FF6B35' : '#888888'}
+                        size={22}
+                      />
+                    </Pressable>
+                    <Pressable style={styles.addButton}>
+                      <Ionicons name="add" color="#2D2D2D" size={18} />
+                    </Pressable>
+                  </View>
+                  <Text style={styles.menuTitle} numberOfLines={1}>
+                    {item.name}
+                  </Text>
+                  <View style={styles.metaRow}>
+                    <View style={styles.metaItem}>
+                      <Ionicons name="time" size={12} color="#555" />
+                      <Text style={styles.metaText}>
+                        {item.prepTimeMinutes + item.cookTimeMinutes} min
+                      </Text>
+                    </View>
+                    <View style={styles.metaItem}>
+                      <Ionicons name="person" size={12} color="#555" />
+                      <Text style={styles.metaText}>{item.servings} pax</Text>
+                    </View>
+                    <View style={styles.metaItem}>
+                      <Ionicons name="star" size={12} color="#FFD700" />
+                      <Text style={styles.metaText}>{item.rating.toFixed(1)}</Text>
+                    </View>
+                  </View>
+                  <View style={styles.cuisineTag}>
+                    <Text style={styles.cuisineText}>{item.cuisine}</Text>
+                  </View>
+                </View>
               </View>
-              <Text style={styles.menuTitle}>{item.name}</Text>
-              <Text style={styles.menuDescription}>{item.description}</Text>
-            </View>
-          </View>
-        ))}
+            ))}
       </View>
     </ScrollView>
   );
@@ -236,16 +286,22 @@ const styles = StyleSheet.create({
   },
   menuList: {
     paddingHorizontal: 20,
+    paddingBottom: 50,
   },
   menuCard: {
     flexDirection: 'row',
     borderRadius: 20,
     padding: 16,
-    marginBottom: 16,
+    marginBottom: 20,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
   },
   menuImage: {
-    width: 80,
-    height: 80,
+    width: 84,
+    height: 84,
     borderRadius: 16,
     marginRight: 16,
   },
@@ -272,12 +328,73 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontFamily: 'Inter_700Bold',
     color: '#1A1A1A',
+    marginBottom: 6,
+    maxWidth: '85%',
+  },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 6,
+  },
+  metaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  metaText: {
+    fontSize: 12,
+    fontFamily: 'Inter_400Regular',
+    color: '#666',
+  },
+  cuisineTag: {
+    backgroundColor: '#E0E0E0',
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  cuisineText: {
+    fontSize: 11,
+    fontFamily: 'Inter_600SemiBold',
+    color: '#444',
+  },
+  skeletonCard: {
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 16,
+    marginBottom: 20,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+  },
+  skeletonImage: {
+    width: 84,
+    height: 84,
+    borderRadius: 16,
+    backgroundColor: '#F0F0F0',
+    marginRight: 16,
+  },
+  skeletonContent: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  skeletonLine: {
+    backgroundColor: '#F0F0F0',
+    borderRadius: 4,
     marginBottom: 4,
   },
-  menuDescription: {
-    fontSize: 13,
-    fontFamily: 'Inter_400Regular',
-    color: '#555555',
+  skeletonMetaRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 6,
+  },
+  skeletonMetaItem: {
+    height: 12,
+    backgroundColor: '#F0F0F0',
+    borderRadius: 4,
   },
 });
 
