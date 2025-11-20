@@ -72,7 +72,7 @@
 	"[typescript]": {
 		"editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
 	},
-	"workbench.colorTheme": "One Dark Pro Darker",
+	"workbench.colorTheme": "JetBrains Darcula Theme",
 	"github.copilot.nextEditSuggestions.enabled": true,
 	"github.copilot.enable": {
 		"*": false,
