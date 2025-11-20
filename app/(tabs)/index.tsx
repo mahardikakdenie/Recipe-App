@@ -47,6 +47,7 @@ const Index = () => {
             cuisine: item.cuisine || 'Unknown',
             saved: item.saved ?? false,
             color: item.color || '#FFFFFF',
+            difficulty: item.difficulty,
           })));
         }
       } catch (error) {
@@ -155,6 +156,7 @@ const Index = () => {
                   </View>
                   <View style={styles.cuisineTag}>
                     <Text style={styles.cuisineText}>{item.cuisine}</Text>
+                    <Text style={styles.cuisineText}>{item.difficulty}</Text>
                   </View>
                 </View>
               </View>
@@ -348,15 +350,19 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   cuisineTag: {
-    backgroundColor: '#E0E0E0',
     alignSelf: 'flex-start',
+    flexDirection: 'row',
+    gap: 10,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
   },
   cuisineText: {
     fontSize: 11,
+    backgroundColor: '#E0E0E0',
     fontFamily: 'Inter_600SemiBold',
+    padding: 5,
+    borderRadius: 10,
     color: '#444',
   },
   skeletonCard: {
