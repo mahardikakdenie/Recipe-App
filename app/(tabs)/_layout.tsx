@@ -32,6 +32,24 @@ const TabLayout = () => {
           }}
         />
         <Tabs.Screen
+          name="search"
+          options={{
+            title: "Search",
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="search" size={size} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="chef"
+          options={{
+            title: "Chef",
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="heart-dislike-sharp" size={size} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
           name="journal"
           options={{
             title: "Journal",
@@ -43,9 +61,9 @@ const TabLayout = () => {
         <Tabs.Screen
           name="recipe"
           options={{
-            title: "Meals",
+            title: "Profile",
             tabBarIcon: ({ color, size }) => (
-              <Ionicons name="restaurant" size={size} color={color} />
+              <Ionicons name="people-circle" size={size} color={color} />
             ),
           }}
         />
