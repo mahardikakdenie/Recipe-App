@@ -1,99 +1,156 @@
 import { Ionicons } from '@expo/vector-icons';
-import * as React from 'react';
-import { Image, View, StyleSheet, Text, TextInput, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
+import React from 'react';
+import { View, StyleSheet, Text, TouchableOpacity, ScrollView, SafeAreaView, ImageBackground, useWindowDimensions } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 
-type JournalProps = object;
-
-const Journal = (props: JournalProps) => {
-  const recipes = [
-    { id: 1, title: 'Aegean Breeze Salad', time: '20 minutes', image: 'https://vjcooks.com/wp-content/uploads/2022/05/VJcooks_KidsPastaSalad_8-360x480.jpg' },
-    { id: 2, title: 'Margherita Pizza', time: '25 minutes', image: 'https://img.freepik.com/free-photo/pizza-pizza-filled-with-tomatoes-salami-olives_140725-1200.jpg' },
-    { id: 3, title: 'Spicy Burger', time: '15 minutes', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLmLX7X-iZavaUWZaZLzcnvugr3uMWD5OmQLDgY1OfMcQ5c7nv65fDG5PVdA4OODE4Y-qD_IGFZv08gliJuV5PsaunOov-og8pSiAx0VOzAg' },
-    { id: 4, title: 'Grilled Steak', time: '30 minutes', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_LmXCg5oPfWo_URI2uI5ChWCogQKhCxuWMZvFX_SiOA1BDeP-yWSqAp8lZx30VuYWvSJWZJk4XH4sp7hY23C19vZu6tk7CEtjlTeLHhNk&s=10' },
+const Journal = () => {
+  const journalEntries = [
+    {
+      id: 1,
+      mealType: 'Breakfast',
+      recipe: {
+        id: 101,
+        name: 'Avocado Toast with Egg',
+        image: 'https://cdn.dummyjson.com/recipe-images/15.webp',
+        time: '15 min',
+        rating: 4.7,
+      },
+      date: 'Today, 08:30 AM',
+    },
+    {
+      id: 2,
+      mealType: 'Lunch',
+      recipe: {
+        id: 102,
+        name: 'Grilled Chicken Bowl',
+        image: 'https://cdn.dummyjson.com/recipe-images/22.webp',
+        time: '25 min',
+        rating: 4.5,
+      },
+      date: 'Today, 01:15 PM',
+    },
+    {
+      id: 3,
+      mealType: 'Lunch',
+      recipe: {
+        id: 102,
+        name: 'Grilled Chicken Bowl',
+        image: 'https://cdn.dummyjson.com/recipe-images/23.webp',
+        time: '25 min',
+        rating: 4.5,
+      },
+      date: 'Today, 01:15 PM',
+    },
+    {
+      id: 4,
+      mealType: 'Lunch',
+      recipe: {
+        id: 102,
+        name: 'Grilled Chicken Bowl',
+        image: 'https://cdn.dummyjson.com/recipe-images/24.webp',
+        time: '25 min',
+        rating: 4.5,
+      },
+      date: 'Today, 01:15 PM',
+    },
   ];
 
+  const { width } = useWindowDimensions();
+  const cardWidth = width * 0.44; // 90% layar
+
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <View style={styles.profileSection}>
-            <Image
-              style={styles.avatar}
-              source={{ uri: 'https://cdn-icons-png.freepik.com/512/9173/9173213.png?ga=GA1.1.887243274.1762007492' }}
-              resizeMode="cover"
-            />
-            <View>
-              <Text style={styles.greeting}>Hello</Text>
-              <Text style={styles.name}>Emily Ava</Text>
-            </View>
-          </View>
-          <TouchableOpacity style={styles.iconButton}>
-            <Ionicons name="notifications" size={24} color="#000" />
-          </TouchableOpacity>
-        </View>
-
-        <Text style={styles.title}>Explore New Recipes</Text>
-
-        <View style={styles.searchBar}>
-          <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search recipes"
-            placeholderTextColor="#888"
-          />
-          <TouchableOpacity style={styles.filterButton}>
-            <Ionicons name="filter" size={20} color="#000" />
-          </TouchableOpacity>
-        </View>
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryScroll}>
-          {[
-            { label: 'Salad', icon: 'https://vjcooks.com/wp-content/uploads/2022/05/VJcooks_KidsPastaSalad_8-360x480.jpg' },
-            { label: 'Pizza', icon: 'https://img.freepik.com/free-photo/pizza-pizza-filled-with-tomatoes-salami-olives_140725-1200.jpg' },
-            { label: 'Burger', icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLmLX7X-iZavaUWZaZLzcnvugr3uMWD5OmQLDgY1OfMcQ5c7nv65fDG5PVdA4OODE4Y-qD_IGFZv08gliJuV5PsaunOov-og8pSiAx0VOzAg' },
-            { label: 'Steak', icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_LmXCg5oPfWo_URI2uI5ChWCogQKhCxuWMZvFX_SiOA1BDeP-yWSqAp8lZx30VuYWvSJWZJk4XH4sp7hY23C19vZu6tk7CEtjlTeLHhNk&s=10' },
-            { label: 'Sea Food', icon: 'https://i.gojekapi.com/darkroom/gofood-indonesia/v2/images/uploads/77ef47b2-c289-46be-8660-74f4c93a8676_c76e6ac4-da09-422f-bc5b-33d378849430_Go-Biz_20190323_005453.jpeg?auto=format' },
-            { label: 'Dessert', icon: 'https://img.freepik.com/free-photo/chocolate-cake-isolated-white-background_144627-20941.jpg' },
-            { label: 'Smoothie', icon: 'https://img.freepik.com/free-photo/glass-smoothie-with-fruits-strawberries-blueberries_144627-20945.jpg' },
-          ].map((item, index) => (
-            <TouchableOpacity key={index} style={styles.categoryItem}>
-              <Image source={{ uri: item.icon }} style={styles.categoryIcon} />
-              <Text style={styles.categoryLabel}>{item.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.safeArea}>
         <ScrollView
-          showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
         >
-          {recipes.map((recipe) => (
-            <TouchableOpacity key={recipe.id} style={styles.recipeCard}>
-              <View style={styles.recipeInfo}>
-                <Text style={styles.recipeTitle}>{recipe.title}</Text>
-                <View style={styles.timeRow}>
-                  <Ionicons name="time" size={16} color="#666" />
-                  <Text style={styles.timeText}>{recipe.time}</Text>
-                </View>
+          <View style={styles.header}>
+            <View style={styles.profileSection}>
+              <View style={styles.avatar}>
+                <Ionicons name="person" size={20} color="#666" />
               </View>
-              <View style={styles.recipeImageContainer}>
-                <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
-                <TouchableOpacity style={styles.heartButton}>
-                  <Ionicons name="heart-outline" size={24} color="#FFF" />
-                </TouchableOpacity>
+              <View>
+                <Text style={styles.greeting}>Hello</Text>
+                <Text style={styles.name}>Tahira</Text>
               </View>
-            </TouchableOpacity>
-          ))}
-
-          <TouchableOpacity style={styles.seeRecipeButtonFull}>
-            <Text style={styles.seeRecipeButtonText}>See Recipe</Text>
-            <View style={styles.chatIconWrapper}>
-              <Ionicons name="chatbubble-ellipses" size={24} color="#FFF" />
             </View>
-          </TouchableOpacity>
+            <TouchableOpacity style={styles.iconButton}>
+              <Ionicons name="notifications-outline" size={24} color="#2D2D2D" />
+            </TouchableOpacity>
+          </View>
+
+          <Text style={styles.title}>My Food Journal</Text>
+          <Text style={styles.subtitle}>Track what you eat and cook every day</Text>
+
+          <View style={{
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            gap: 10,
+          }}>
+            {
+              journalEntries.map((entry) => (
+                <View key={entry.id} style={{
+                  position: "relative"
+                }}>
+                  <ImageBackground
+                    source={{ uri: entry.recipe.image }}
+                    style={{ width: cardWidth, height: cardWidth, borderRadius: 16 }}
+                    imageStyle={{ borderRadius: 16 }}
+                  >
+                    <LinearGradient
+                      colors={['transparent', 'rgba(0,0,0,0.6)']}
+                      style={styles.overlay}
+                    />
+                    <View style={styles.cardContent}>
+                      <Text style={styles.cardTitle} numberOfLines={2}>
+                        {entry.recipe.name}
+                      </Text>
+                      <View style={styles.cardMeta}>
+                        <Ionicons name="time-outline" size={14} color="#FFF" />
+                        <Text style={styles.cardMetaText}>{entry.recipe.time}</Text>
+                        <Ionicons name="star-outline" size={14} color="#FFF" />
+                        <Text style={styles.cardMetaText}>{entry.recipe.rating}</Text>
+                      </View>
+                    </View>
+                  </ImageBackground>
+                </View>
+              ))
+            }
+          </View>
+
+          <Text style={styles.sectionTitle}>Learn & Explore</Text>
+
+          <View style={styles.ctaGrid}>
+            <TouchableOpacity style={[styles.ctaCard, { backgroundColor: '#E6F4FE' }]}>
+              <View style={styles.ctaIconCircle}>
+                <Ionicons name="information-circle" size={24} color="#1E88E5" />
+              </View>
+              <Text style={styles.ctaTitle}>What is Protein?</Text>
+              <Text style={styles.ctaSubtitle}>Understand why it fuels your body</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.ctaCard, { backgroundColor: '#FFF0F5' }]}>
+              <View style={styles.ctaIconCircle}>
+                <Ionicons name="fast-food" size={24} color="#E91E63" />
+              </View>
+              <Text style={styles.ctaTitle}>High-Protein Recipes</Text>
+              <Text style={styles.ctaSubtitle}>Delicious meals rich in protein</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.ctaCard, { backgroundColor: '#F1F8E9' }]}>
+              <View style={styles.ctaIconCircle}>
+                <Ionicons name="bar-chart" size={24} color="#7CB342" />
+              </View>
+              <Text style={styles.ctaTitle}>Track Your Intake</Text>
+              <Text style={styles.ctaSubtitle}>See how much youre getting daily</Text>
+            </TouchableOpacity>
+          </View>
         </ScrollView>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 };
 
@@ -101,152 +158,209 @@ export default Journal;
 
 const styles = StyleSheet.create({
   safeArea: {
-    paddingTop: 60,
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF9F0',
   },
-  container: {
-    flex: 1,
+  scrollContent: {
     paddingHorizontal: 20,
+    paddingTop: 40,
+    paddingBottom: 200,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
-    marginTop: 10,
+    marginBottom: 24,
   },
   profileSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 12,
   },
   avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#E0E0E0',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   greeting: {
-    fontSize: 12,
-    color: '#888',
+    fontSize: 14,
+    color: '#777',
+    fontFamily: 'Inter_400Regular',
   },
   name: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontFamily: 'Inter_700Bold',
+    color: '#222',
+  },
+  iconButton: {
+    padding: 6,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 20,
+    fontSize: 26,
+    fontFamily: 'Inter_700Bold',
+    color: '#222',
+    marginBottom: 6,
   },
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-    borderRadius: 25,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    marginBottom: 20,
-  },
-  searchIcon: {
-    marginRight: 10,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-  },
-  filterButton: {
-    marginLeft: 10,
-    padding: 5,
-  },
-  categoryScroll: {
-    marginBottom: 30,
-  },
-  categoryItem: {
-    alignItems: 'center',
-    padding: 5,
-    marginHorizontal: 5,
-  },
-  categoryIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    marginBottom: 5,
-  },
-  categoryLabel: {
-    fontSize: 12,
-    textAlign: 'center',
-  },
-  scrollContent: {
-    paddingBottom: 80,
-  },
-  recipeCard: {
-    backgroundColor: '#FFF0F5',
-    borderRadius: 15,
-    padding: 15,
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  recipeInfo: {
-    flex: 1,
-  },
-  recipeTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 5,
-  },
-  timeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-  },
-  timeText: {
-    fontSize: 13,
+  subtitle: {
+    fontSize: 15,
+    fontFamily: 'Inter_400Regular',
     color: '#666',
+    marginBottom: 28,
   },
-  recipeImageContainer: {
-    position: 'relative',
+  entryCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 18,
+    marginBottom: 20,
+    flexDirection: 'row',
+    gap: 14,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
   },
-  recipeImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 12,
+  mealTag: {
+    backgroundColor: '#FFD166',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 14,
+    alignSelf: 'flex-start',
   },
-  heartButton: {
-    position: 'absolute',
-    top: 5,
-    right: 5,
-    backgroundColor: 'rgba(0,0,0,0.2)',
-    borderRadius: 10,
-    padding: 2,
+  mealTagText: {
+    fontSize: 12,
+    fontFamily: 'Inter_600SemiBold',
+    color: '#1A1A1A',
   },
-  seeRecipeButtonFull: {
+  entryContent: {
+    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#FFF0F5',
-    borderRadius: 15,
-    paddingVertical: 12,
-    paddingHorizontal: 15,
-    marginBottom: 20,
+  },
+  entryDate: {
+    fontSize: 12,
+    fontFamily: 'Inter_400Regular',
+    color: '#888',
+    marginBottom: 4,
+  },
+  recipeName: {
+    fontSize: 17,
+    fontFamily: 'Inter_700Bold',
+    color: '#1A1A1A',
+    marginBottom: 6,
+    maxWidth: '70%',
+  },
+  metaRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  metaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  metaText: {
+    fontSize: 12,
+    fontFamily: 'Inter_400Regular',
+    color: '#666',
+  },
+  entryImage: {
+    width: 70,
+    height: 70,
+    borderRadius: 12,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontFamily: 'Inter_700Bold',
+    color: '#222',
+    marginVertical: 24,
+    marginHorizontal: 4,
+  },
+  ctaGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: 16,
+  },
+  ctaCard: {
+    width: '48%',
+    borderRadius: 20,
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
   },
-  seeRecipeButtonText: {
+  ctaIconCircle: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+  },
+  ctaTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#000',
+    fontFamily: 'Inter_700Bold',
+    color: '#222',
+    textAlign: 'center',
+    marginBottom: 6,
   },
-  chatIconWrapper: {
-    backgroundColor: '#000',
-    borderRadius: 10,
-    padding: 4,
+  ctaSubtitle: {
+    fontSize: 13,
+    fontFamily: 'Inter_400Regular',
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 18,
   },
-  iconButton: {
-    padding: 5,
+  overlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '50%',
+    borderRadius: 16,
+  },
+
+  cardContent: {
+    position: 'absolute',
+    bottom: 16,
+    left: 16,
+    right: 16,
+  },
+
+  cardTitle: {
+    fontSize: 18,
+    fontFamily: 'Inter_700Bold',
+    color: '#FFFFFF',
+    marginBottom: 6,
+    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+
+  cardMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+
+  cardMetaText: {
+    fontSize: 13,
+    fontFamily: 'Inter_400Regular',
+    color: '#FFFFFF',
+    opacity: 0.9,
   },
 });
