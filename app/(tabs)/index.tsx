@@ -1,7 +1,7 @@
 import Items from '@/src/screen/ui/Items';
 import apiClient from '../../src/api/client';
 import { Inter_400Regular, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
-import {  Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, Pressable, TouchableOpacity, ScrollView, useWindowDimensions, ImageBackground } from 'react-native';
@@ -50,7 +50,7 @@ const Index = () => {
     fetchRecipes();
   }, []);
 
-  const savedCount = lunchMenus.filter(item => item.saved).length;
+  const savedCount = 10;
 
   if (!fontsLoaded) {
     return null;
@@ -71,17 +71,24 @@ const Index = () => {
             <Text style={styles.name}>Tahira</Text>
           </View>
         </View>
-        <TouchableOpacity style={styles.iconButton}>
-          <Ionicons name="notifications-outline" size={28} color="#2D2D2D" />
+        <View style={styles.iconButton}>
+          <View style={{
+            backgroundColor: "#ffff",
+            borderColor: 'green',
+            borderWidth: 2,
+            borderRadius: 50,
+          }}>
+            <Ionicons name="notifications-outline" size={28} color="green" />
+          </View>
           <View style={styles.saveIconContainer}>
-          <Ionicons name="bookmark" size={28} color="#2D2D2D" />
-          {savedCount > 0 && (
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>{savedCount}</Text>
-            </View>
-          )}
+            <Ionicons name="bookmark" size={28} color="#53df41ff" />
+            {savedCount > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{savedCount}</Text>
+              </View>
+            )}
+          </View>
         </View>
-        </TouchableOpacity>
       </View>
       <View style={styles.mainCard}>
         <View style={styles.cardContent}>
@@ -520,6 +527,7 @@ const styles = StyleSheet.create({
     padding: 6,
     flexDirection: 'row',
     fontSize: 10,
+    gap: 10,
   },
 });
 
