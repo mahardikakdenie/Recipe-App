@@ -5,37 +5,11 @@ import { Inter_400Regular, Inter_600SemiBold, Inter_700Bold } from '@expo-google
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, Pressable, TouchableOpacity, ScrollView, useWindowDimensions, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, useWindowDimensions, ImageBackground } from 'react-native';
 import { IRECIPE } from '@/src/types/recipe';
 import { LinearGradient } from 'expo-linear-gradient';
 import AppBar from '@/src/components/ui/appbar/appbar';
-
-const summaryCards = [
-  {
-    id: '1',
-    badge: '✨ Discover More',
-    title: 'Explore Tasty Recipes',
-    subtitle: 'Discover delicious meals crafted just for you.',
-    buttonText: 'Explore Recipes',
-    image: 'https://cdn-icons-png.freepik.com/512/9173/9173213.png?ga=GA1.1.887243274.1762007492',
-  },
-  {
-    id: '2',
-    badge: '🔥 Popular This Week',
-    title: 'Quick & Easy Dinners',
-    subtitle: 'Ready in under 30 minutes — perfect for busy days.',
-    buttonText: 'View Recipes',
-    image: 'https://cdn-icons-png.freepik.com/512/3135/3135715.png',
-  },
-  {
-    id: '3',
-    badge: '🌿 Healthy Picks',
-    title: 'Nourish Your Body',
-    subtitle: 'Fresh, balanced meals for a healthier lifestyle.',
-    buttonText: 'See Healthy Options',
-    image: 'https://cdn-icons-png.freepik.com/512/6331/6331224.png',
-  },
-];
+import SummaryCards from '@/src/components/ui/summaryCard/Card';
 
 const Index = () => {
   const { width } = useWindowDimensions();
@@ -49,7 +23,6 @@ const Index = () => {
 
   const [lunchMenus, setLunchMenus] = useState<IRECIPE[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     const fetchRecipes = async () => {
@@ -92,53 +65,7 @@ const Index = () => {
       contentContainerStyle={styles.scrollContent}
     >
       <AppBar />
-
-      <ScrollView
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.carouselContainer}
-        onScroll={(e) => {
-          const x = e.nativeEvent.contentOffset.x;
-          const index = Math.round(x / (width * 0.9));
-          setActiveIndex(index);
-        }}
-        scrollEventThrottle={16}
-      >
-        {summaryCards.map((card) => (
-          <View key={card.id} style={[styles.mainCard, { width: width * 0.9 }]}>
-            <View style={styles.cardContent}>
-              <View style={styles.badgeHighlight}>
-                <Text style={styles.badgeTextSmall}>{card.badge}</Text>
-              </View>
-              <Text style={styles.cardTitle}>{card.title}</Text>
-              <Text style={styles.cardSubtitle}>{card.subtitle}</Text>
-              <Pressable style={({ pressed }) => [styles.actionButton, pressed && { opacity: 0.9 }]}>
-                <Text style={styles.actionButtonText}>{card.buttonText}</Text>
-              </Pressable>
-            </View>
-            <View style={styles.imageWrapper}>
-              <Image
-                source={{ uri: card.image }}
-                style={styles.chefImage}
-                resizeMode="contain"
-              />
-            </View>
-          </View>
-        ))}
-      </ScrollView>
-
-      <View style={styles.dotsContainer}>
-        {summaryCards.map((_, i) => (
-          <View
-            key={i}
-            style={[
-              styles.dot,
-              i === activeIndex ? styles.activeDot : styles.inactiveDot,
-            ]}
-          />
-        ))}
-      </View>
+      <SummaryCards />
 
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Recommendations</Text>
@@ -201,88 +128,6 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingTop: 60,
     paddingBottom: 100,
-  },
-  carouselContainer: {
-    gap: 10,
-    paddingHorizontal: 10,
-    marginBottom: 8,
-  },
-  mainCard: {
-    backgroundColor: '#E8F5E9',
-    borderRadius: 24,
-    padding: 24,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#C8E6C9',
-  },
-  cardContent: {
-    flex: 1,
-    marginRight: 16,
-  },
-  badgeHighlight: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#4CAF50',
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 20,
-  },
-  badgeTextSmall: {
-    fontSize: 12,
-    fontFamily: 'Inter_600SemiBold',
-    color: '#FFFFFF',
-  },
-  cardTitle: {
-    fontSize: 20,
-    fontFamily: 'Inter_700Bold',
-    color: '#1B5E20',
-    marginTop: 8,
-    marginBottom: 8,
-  },
-  cardSubtitle: {
-    fontSize: 14,
-    fontFamily: 'Inter_400Regular',
-    color: '#388E3C',
-    marginBottom: 20,
-  },
-  actionButton: {
-    backgroundColor: '#66BB6A',
-    paddingVertical: 13,
-    paddingHorizontal: 28,
-    borderRadius: 30,
-  },
-  actionButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontFamily: 'Inter_600SemiBold',
-    textAlign: 'center',
-  },
-  imageWrapper: {
-    alignItems: 'flex-end',
-  },
-  chefImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 24,
-  },
-  dotsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 28,
-    gap: 6,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  activeDot: {
-    backgroundColor: '#4CAF50',
-  },
-  inactiveDot: {
-    backgroundColor: '#A5D6A7',
   },
   sectionHeader: {
     paddingHorizontal: 24,
