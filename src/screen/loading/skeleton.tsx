@@ -8,25 +8,18 @@ type SkeletonCardProps = {
 const SkeletonCard = ({ cardWidth }: SkeletonCardProps) => {
   return (
     <View style={[styles.skeletonCard, { width: cardWidth, height: cardWidth }]}>
-      {/* Placeholder gambar */}
       <View style={styles.imagePlaceholder} />
 
-      {/* Overlay gelap (simulasi) */}
       <View style={styles.overlay} />
 
-      {/* Badge kategori */}
       <View style={styles.badgePlaceholder} />
 
-      {/* Konten bawah */}
       <View style={styles.contentPlaceholder}>
-        {/* Judul */}
         <View style={[styles.line, { width: '80%', height: 16, marginBottom: 8 }]} />
-        {/* Meta row */}
         <View style={styles.metaRow}>
           <View style={[styles.metaItem, { width: 60 }]} />
           <View style={[styles.metaItem, { width: 55 }]} />
         </View>
-        {/* Footer: rating + heart */}
         <View style={styles.footer}>
           <View style={[styles.line, { width: 50, height: 14 }]} />
           <View style={styles.heartPlaceholder} />
@@ -42,13 +35,9 @@ const styles = StyleSheet.create({
   skeletonCard: {
     borderRadius: 16,
     overflow: 'hidden',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#F9FAFB',
     position: 'relative',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    elevation: 2,
+    shadowRadius: 6,
   },
   imagePlaceholder: {
     position: 'absolute',
@@ -56,15 +45,15 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: '100%',
-    backgroundColor: '#EEEEEE',
+    backgroundColor: '#EDF0F2',
   },
   overlay: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    height: '60%',
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    height: '55%',
+    backgroundColor: 'rgba(181, 184, 192, 0.4)',
   },
   badgePlaceholder: {
     position: 'absolute',
@@ -72,7 +61,7 @@ const styles = StyleSheet.create({
     left: 10,
     width: 70,
     height: 20,
-    backgroundColor: 'rgba(255,255,255,0.3)',
+    backgroundColor: 'rgba(255, 255, 255, 0.25)', 
     borderRadius: 12,
   },
   contentPlaceholder: {
@@ -82,7 +71,7 @@ const styles = StyleSheet.create({
     right: 14,
   },
   line: {
-    backgroundColor: 'rgba(255,255,255,0.7)',
+    backgroundColor: 'rgba(255, 255, 255, 0.85)', 
     borderRadius: 4,
   },
   metaRow: {
@@ -92,7 +81,7 @@ const styles = StyleSheet.create({
   },
   metaItem: {
     height: 12,
-    backgroundColor: 'rgba(255,255,255,0.7)',
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
     borderRadius: 4,
   },
   footer: {
@@ -103,7 +92,7 @@ const styles = StyleSheet.create({
   heartPlaceholder: {
     width: 28,
     height: 28,
-    backgroundColor: 'rgba(255,255,255,0.3)',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     borderRadius: 14,
   },
 });
