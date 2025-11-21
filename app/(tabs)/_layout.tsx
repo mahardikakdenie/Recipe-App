@@ -2,113 +2,84 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
-const TabLayout = () => {
+const tabsConfig = [
+  { name: 'index', title: 'Discover', icon: 'compass' },
+  { name: 'chef', title: 'Restaurant', icon: 'restaurant' },
+  { name: 'search', title: 'Search', icon: 'search' },
+  { name: 'journal', title: 'Journal', icon: 'clipboard' },
+  { name: 'recipe', title: 'Profile', icon: 'people-circle' },
+] as const;
+
+export default function TabLayout() {
   return (
-    <View style={styles.container}>
-      <Tabs
-        screenOptions={{
-          headerShown: false,
-          tabBarActiveTintColor: '#FF6B35',
-          tabBarInactiveTintColor: '#FFA97A',
-          tabBarStyle: styles.tabBar,
-          tabBarLabelStyle: styles.tabBarLabel,
-          tabBarShowLabel: true,
-          tabBarItemStyle: styles.tabBarItem,
-          tabBarIconStyle: styles.tabBarIcon,
-          tabBarBackground: () => (
-            <View style={styles.tabBarBackground} />
-          ),
-        }}
-      >
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        tabBarStyle: styles.tabBar,
+      }}
+    >
+      {tabsConfig.map((tab) => (
         <Tabs.Screen
-          name="index"
+          key={tab.name}
+          name={tab.name}
           options={{
-            title: "Plan",
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="calendar" size={size} color={color} />
+            title: tab.title,
+            tabBarIcon: ({ focused }) => (
+              <View style={[styles.tabItem, focused && styles.activeTab, focused && tab.title === 'Discover' && {
+                marginLeft: 20
+              }]}>
+                <Ionicons
+                  name={tab.icon as any}
+                  size={24}
+                  color={focused ? '#00C853' : '#757575'}
+                />
+                {focused && (
+                  <Text style={styles.tabLabel}>{tab.title}</Text>
+                )}
+              </View>
             ),
           }}
         />
-        <Tabs.Screen
-          name="search"
-          options={{
-            title: "Search",
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="search" size={size} color={color} />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="chef"
-          options={{
-            title: "Chef",
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="heart-dislike-sharp" size={size} color={color} />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="journal"
-          options={{
-            title: "Journal",
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="clipboard" size={size} color={color} />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="recipe"
-          options={{
-            title: "Profile",
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="people-circle" size={size} color={color} />
-            ),
-          }}
-        />
-      </Tabs>
-    </View>
+      ))}
+    </Tabs>
   );
-};
-
-export default TabLayout;
+}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFF9F0',
-  },
-  tabBarBackground: {
-    flex: 1,
-    backgroundColor: '#FFEDD5',
-    borderRadius: 32,
-    marginHorizontal: 16,
-    marginBottom: 70,
-  },
   tabBar: {
-    borderTopWidth: 0,
-    backgroundColor: '#FFEDD5',
     height: 64,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    marginHorizontal: 16,
-    marginBottom: 70,
-    borderRadius: 32,
+    marginBottom: 16,
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    elevation: 0,
+    shadowOpacity: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
   },
-  tabBarItem: {
-    flex: 1,
+  tabItem: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 6,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 32,
+    height: 48,
+    minWidth: 100,
   },
-  tabBarIcon: {
-    marginBottom: 4,
+  activeTab: {
+    backgroundColor: '#E8F5E9',
   },
-  tabBarLabel: {
+  tabLabel: {
     fontSize: 12,
     fontFamily: 'Inter_600SemiBold',
-    textTransform: 'capitalize',
+    color: '#00C853',
+    fontWeight: "bold",
   },
 });
