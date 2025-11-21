@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
-import Item from './Item';
 import { IRECIPE } from '@/src/types/recipe';
-import SkeletonCard from '../loading/skeleton';
+import Item from '@/src/components/ui/Item';
+import SkeletonCard from '@/src/components/loading/skeleton';
 
 interface ItemsProps {
     entries: IRECIPE[],

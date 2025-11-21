@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, ScrollView, SafeAreaView, useWindowDimensions } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import Item from '@/src/screen/ui/Item';
+import Item from '@/src/components/ui/Item';
 import { IRECIPE } from '@/src/types/recipe';
 
 const Journal = () => {

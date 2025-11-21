@@ -1,5 +1,5 @@
 // app/(tabs)/index.tsx
-import Items from '@/src/screen/ui/Items';
+import Items from '@/src/components/ui/Items';
 import apiClient from '../../src/api/client';
 import { Inter_400Regular, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
 import { Ionicons } from '@expo/vector-icons';
