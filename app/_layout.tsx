@@ -5,6 +5,9 @@ import { useFonts } from "expo-font";
 import { Inter_400Regular, Inter_600SemiBold, Inter_700Bold } from "@expo-google-fonts/inter";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
+import { ThemeProvider } from "@/src/context/Theme/ThemeContext";
+import { AuthProvider } from "@/src/context/Auth/AuthContext";
+import AppBar from "@/src/components/ui/appbar/appbar";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -22,18 +25,24 @@ export default function RootLayout() {
   }, [fontsLoaded]);
 
   if (!fontsLoaded) {
-    return null; // atau loading screen
+    return null;
   }
 
   return (
     <SafeAreaProvider>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
-        <Stack.Screen name="(tabs)" options={{ title: "Home" }} />
-      </Stack>
+      <ThemeProvider>
+        <AuthProvider>
+          <Stack
+            screenOptions={{
+              header: (props) => <AppBar {...props} />,
+              headerShown: true,
+              headerShadowVisible: false,
+            }}
+          >
+            <Stack.Screen name="(tabs)" />
+          </Stack>
+        </AuthProvider>
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }
