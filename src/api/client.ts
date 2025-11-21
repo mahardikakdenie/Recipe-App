@@ -17,8 +17,6 @@ const apiClient = async (endpoint: string, params: ApiClientParams = {}) => {
       validateStatus: () => true,
     });
 
-    console.log('⬅️ Status:', response.status);
-
     if (response.status < 200 || response.status >= 300) {
       throw new Error(`HTTP ${response.status}`);
     }
