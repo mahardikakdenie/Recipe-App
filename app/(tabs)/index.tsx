@@ -1,24 +1,25 @@
 // app/(tabs)/index.tsx
 import Items from '@/src/components/ui/Items';
 import apiClient from '../../src/api/client';
-import { Inter_400Regular, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, useWindowDimensions, ImageBackground } from 'react-native';
 import { IRECIPE } from '@/src/types/recipe';
 import { LinearGradient } from 'expo-linear-gradient';
-import AppBar from '@/src/components/ui/appbar/appbar';
 import SummaryCards from '@/src/components/ui/summaryCard/Card';
+import SkeletonCard from '@/src/components/loading/skeleton';
+import { useTheme } from '@/src/context/Theme/ThemeContext';
 
 const Index = () => {
   const { width } = useWindowDimensions();
   const cardWidth = width * 0.44;
+  const { theme } = useTheme();
 
   const [fontsLoaded] = useFonts({
-    Inter_400Regular,
-    Inter_600SemiBold,
-    Inter_700Bold,
+    Inter_400Regular: theme.fonts.regular,
+    Inter_600SemiBold: theme.fonts.medium,
+    Inter_700Bold: theme.fonts.bold,
   });
 
   const [lunchMenus, setLunchMenus] = useState<IRECIPE[]>([]);
@@ -39,7 +40,7 @@ const Index = () => {
             servings: item.servings || 1,
             cuisine: item.cuisine || 'Unknown',
             saved: item.saved ?? false,
-            color: item.color || '#A8E6CF',
+            color: item.color || theme.colors.surface,
             difficulty: item.difficulty,
           }));
           setLunchMenus(formatted);
@@ -52,8 +53,7 @@ const Index = () => {
     };
 
     fetchRecipes();
-  }, []);
-
+  }, [theme]);
 
   if (!fontsLoaded) {
     return null;
@@ -61,16 +61,19 @@ const Index = () => {
 
   return (
     <ScrollView
-      style={styles.pageContainer}
+      style={[styles.pageContainer, { backgroundColor: theme.colors.background }]}
       contentContainerStyle={styles.scrollContent}
     >
-      <AppBar />
       <SummaryCards />
 
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Recommendations</Text>
+        <Text style={[styles.sectionTitle, { color: theme.colors.text, fontFamily: theme.fonts.bold }]}>
+          Recommendations
+        </Text>
         <TouchableOpacity onPress={() => console.log('See All pressed')}>
-          <Text style={styles.seeAllText}>See All</Text>
+          <Text style={[styles.seeAllText, { color: theme.colors.primaryLight, fontFamily: theme.fonts.medium }]}>
+            See All
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -79,37 +82,58 @@ const Index = () => {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.recommendationsScroll}
       >
-        {lunchMenus.slice(0, 5).map((entry: IRECIPE) => (
-          <TouchableOpacity key={entry.id} style={styles.recommendationCard}>
-            <ImageBackground
-              source={{ uri: entry.image }}
-              style={styles.recommendationImage}
-              imageStyle={{ borderRadius: 16 }}
-            >
-              <LinearGradient
-                colors={['transparent', 'rgba(0,0,0,0.6)']}
-                style={styles.recommendationOverlay}
-              />
-              <View style={styles.recommendationContent}>
-                <Text style={styles.recommendationTitle} numberOfLines={1}>
-                  {entry.name}
-                </Text>
-                <View style={styles.recommendationMeta}>
-                  <Ionicons name="time-outline" size={12} color="#FFF" />
-                  <Text style={styles.recommendationText}>
-                    {entry.prepTimeMinutes + (typeof entry.cookTimeMinutes === 'number' ? entry.cookTimeMinutes : 0)} min
+        {!loading && lunchMenus.length > 0 ? (
+          lunchMenus.slice(0, 5).map((entry: IRECIPE) => (
+            <TouchableOpacity key={entry.id} style={styles.recommendationCard}>
+              <ImageBackground
+                source={{ uri: entry.image }}
+                style={styles.recommendationImage}
+                imageStyle={{ borderRadius: 16 }}
+              >
+                <LinearGradient
+                  colors={['transparent', 'rgba(0,0,0,0.6)']}
+                  style={styles.recommendationOverlay}
+                />
+                <View style={styles.recommendationContent}>
+                  <Text
+                    style={[
+                      styles.recommendationTitle,
+                      { color: '#FFFFFF', fontFamily: theme.fonts.bold },
+                    ]}
+                    numberOfLines={1}
+                  >
+                    {entry.name}
                   </Text>
+                  <View style={styles.recommendationMeta}>
+                    <Ionicons name="time-outline" size={12} color="#FFF" />
+                    <Text
+                      style={[
+                        styles.recommendationText,
+                        { color: '#FFFFFF', fontFamily: theme.fonts.regular },
+                      ]}
+                    >
+                      {entry.prepTimeMinutes + (typeof entry.cookTimeMinutes === 'number' ? entry.cookTimeMinutes : 0)} min
+                    </Text>
+                  </View>
                 </View>
-              </View>
-            </ImageBackground>
-          </TouchableOpacity>
-        ))}
+              </ImageBackground>
+            </TouchableOpacity>
+          ))
+        ) : (
+          Array.from({ length: 4 }).map((_, i) => (
+            <SkeletonCard key={i} cardWidth={cardWidth} />
+          ))
+        )}
       </ScrollView>
 
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Lunch or Dinner</Text>
+        <Text style={[styles.sectionTitle, { color: theme.colors.text, fontFamily: theme.fonts.bold }]}>
+          Lunch or Dinner
+        </Text>
         <TouchableOpacity onPress={() => console.log('See All pressed')}>
-          <Text style={styles.seeAllText}>See All</Text>
+          <Text style={[styles.seeAllText, { color: theme.colors.primaryLight, fontFamily: theme.fonts.medium }]}>
+            See All
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -123,10 +147,9 @@ const Index = () => {
 const styles = StyleSheet.create({
   pageContainer: {
     flex: 1,
-    backgroundColor: '#F8FBF8',
   },
   scrollContent: {
-    paddingTop: 60,
+    paddingTop: 30,
     paddingBottom: 100,
   },
   sectionHeader: {
@@ -138,13 +161,9 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 22,
-    fontFamily: 'Inter_700Bold',
-    color: '#1B5E20',
   },
   seeAllText: {
     fontSize: 14,
-    color: '#66BB6A',
-    fontFamily: 'Inter_600SemiBold',
   },
   recommendationsScroll: {
     paddingHorizontal: 20,
@@ -173,8 +192,6 @@ const styles = StyleSheet.create({
   },
   recommendationTitle: {
     fontSize: 15,
-    fontFamily: 'Inter_700Bold',
-    color: '#FFFFFF',
     marginBottom: 4,
     textShadowColor: 'rgba(0,0,0,0.4)',
     textShadowRadius: 2,
@@ -186,8 +203,6 @@ const styles = StyleSheet.create({
   },
   recommendationText: {
     fontSize: 12,
-    fontFamily: 'Inter_400Regular',
-    color: '#FFFFFF',
     opacity: 0.95,
   },
   menuList: {
