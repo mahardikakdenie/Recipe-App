@@ -8,7 +8,7 @@ const summaries = [
         title: 'Explore Tasty Recipes',
         subtitle: 'Discover delicious meals crafted just for you.',
         buttonText: 'Explore Recipes',
-        image: 'https://cdn-icons-png.freepik.com/512/9173/9173213.png?ga=GA1.1.887243274.1762007492',
+        image: 'https://img.freepik.com/premium-vector/gourmet-food-vector-graphics-illustration-eps-source-file-format-lossless-scaling-icon-design_1041447-110697.jpg?w=1480',
     },
     {
         id: '2',
