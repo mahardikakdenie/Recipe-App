@@ -1,27 +1,17 @@
+import Items from '@/src/screen/ui/Items';
 import apiClient from '../../src/api/client';
 import { Inter_400Regular, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
-import { AntDesign, Ionicons } from '@expo/vector-icons';
+import {  Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, Pressable, TouchableOpacity, ScrollView } from 'react-native';
-
-const SkeletonCard = () => (
-  <View style={styles.skeletonCard}>
-    <View style={styles.skeletonImage} />
-    <View style={styles.skeletonContent}>
-      <View style={[styles.skeletonLine, { width: '70%', height: 18, marginBottom: 8 }]} />
-      <View style={[styles.skeletonLine, { width: '50%', height: 14, marginBottom: 6 }]} />
-      <View style={[styles.skeletonLine, { width: '40%', height: 12 }]} />
-      <View style={styles.skeletonMetaRow}>
-        <View style={[styles.skeletonMetaItem, { width: 60 }]} />
-        <View style={[styles.skeletonMetaItem, { width: 50 }]} />
-        <View style={[styles.skeletonMetaItem, { width: 45 }]} />
-      </View>
-    </View>
-  </View>
-);
+import { View, Text, Image, StyleSheet, Pressable, TouchableOpacity, ScrollView, useWindowDimensions, ImageBackground } from 'react-native';
+import { IRECIPE } from '@/src/types/recipe';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const Index = () => {
+  const { width } = useWindowDimensions();
+  const cardWidth: number = width * 0.44;
+
   const [fontsLoaded] = useFonts({
     Inter_400Regular,
     Inter_600SemiBold,
@@ -34,7 +24,7 @@ const Index = () => {
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        const data = await apiClient('/', { limit: 5 });
+        const data = await apiClient('/', { limit: 6 });
         if (data && Array.isArray(data.recipes)) {
           setLunchMenus(data.recipes.map((item: any) => ({
             id: item.id || Math.random(),
@@ -71,22 +61,28 @@ const Index = () => {
       style={styles.pageContainer}
       contentContainerStyle={styles.scrollContent}
     >
-      <View style={styles.header}>
-        <View style={styles.titleRow}>
-          <Text style={styles.headerTitle}>Meal Plan</Text>
-          <AntDesign name="fire" size={22} color="#FF6B35" />
+      <View style={styles.headerProfile}>
+        <View style={styles.profileSection}>
+          <View style={styles.avatar}>
+            <Ionicons name="person" size={20} color="#666" />
+          </View>
+          <View>
+            <Text style={styles.greeting}>Hello</Text>
+            <Text style={styles.name}>Tahira</Text>
+          </View>
         </View>
-
-        <View style={styles.saveIconContainer}>
-          <Ionicons name="bookmark" size={24} color="#2D2D2D" />
+        <TouchableOpacity style={styles.iconButton}>
+          <Ionicons name="notifications-outline" size={28} color="#2D2D2D" />
+          <View style={styles.saveIconContainer}>
+          <Ionicons name="bookmark" size={28} color="#2D2D2D" />
           {savedCount > 0 && (
             <View style={styles.badge}>
               <Text style={styles.badgeText}>{savedCount}</Text>
             </View>
           )}
         </View>
+        </TouchableOpacity>
       </View>
-
       <View style={styles.mainCard}>
         <View style={styles.cardContent}>
           <View style={styles.badgeHighlight}>
@@ -109,6 +105,46 @@ const Index = () => {
         </View>
       </View>
 
+      {/* Recommendations */}
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>Recommendations</Text>
+        <TouchableOpacity onPress={() => console.log('See All pressed')}>
+          <Text style={styles.seeAllText}>See All</Text>
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.recommendationsScroll}
+      >
+        {lunchMenus.slice(0, 5).map((entry: IRECIPE) => (
+          <TouchableOpacity key={entry.id} style={styles.recommendationCard}>
+            <ImageBackground
+              source={{ uri: entry.image }}
+              style={styles.recommendationImage}
+              imageStyle={{ borderRadius: 16 }}
+            >
+              <LinearGradient
+                colors={['transparent', 'rgba(0,0,0,0.7)']}
+                style={styles.recommendationOverlay}
+              />
+              <View style={styles.recommendationContent}>
+                <Text style={styles.recommendationTitle} numberOfLines={1}>
+                  {entry.name}
+                </Text>
+                <View style={styles.recommendationMeta}>
+                  <Ionicons name="time-outline" size={12} color="#FFF" />
+                  <Text style={styles.recommendationText}>
+                    {entry.prepTimeMinutes + (typeof entry.cookTimeMinutes === 'number' ? entry.cookTimeMinutes : 0)} min
+                  </Text>
+                </View>
+              </View>
+            </ImageBackground>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Lunch or Dinner</Text>
         <TouchableOpacity onPress={() => console.log('See All pressed')}>
@@ -117,50 +153,7 @@ const Index = () => {
       </View>
 
       <View style={styles.menuList}>
-        {loading
-          ? Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
-          : lunchMenus.map((item) => (
-              <View key={item.id} style={[styles.menuCard, { backgroundColor: item.color }]}>
-                <Image source={{ uri: item.image }} style={styles.menuImage} resizeMode="cover" />
-                <View style={styles.menuContent}>
-                  <View style={styles.menuActions}>
-                    <Pressable>
-                      <Ionicons
-                        name={item.saved ? 'heart' : 'heart-outline'}
-                        color={item.saved ? '#FF6B35' : '#888888'}
-                        size={22}
-                      />
-                    </Pressable>
-                    <Pressable style={styles.addButton}>
-                      <Ionicons name="add" color="#2D2D2D" size={18} />
-                    </Pressable>
-                  </View>
-                  <Text style={styles.menuTitle} numberOfLines={1}>
-                    {item.name}
-                  </Text>
-                  <View style={styles.metaRow}>
-                    <View style={styles.metaItem}>
-                      <Ionicons name="time" size={12} color="#555" />
-                      <Text style={styles.metaText}>
-                        {item.prepTimeMinutes + item.cookTimeMinutes} min
-                      </Text>
-                    </View>
-                    <View style={styles.metaItem}>
-                      <Ionicons name="person" size={12} color="#555" />
-                      <Text style={styles.metaText}>{item.servings} pax</Text>
-                    </View>
-                    <View style={styles.metaItem}>
-                      <Ionicons name="star" size={12} color="#FFD700" />
-                      <Text style={styles.metaText}>{item.rating.toFixed(1)}</Text>
-                    </View>
-                  </View>
-                  <View style={styles.cuisineTag}>
-                    <Text style={styles.cuisineText}>{item.cuisine}</Text>
-                    <Text style={styles.cuisineText}>{item.difficulty}</Text>
-                  </View>
-                </View>
-              </View>
-            ))}
+        <Items isLoading={loading} entries={lunchMenus} cardWidth={cardWidth} />
       </View>
     </ScrollView>
   );
@@ -288,7 +281,7 @@ const styles = StyleSheet.create({
   },
   menuList: {
     paddingHorizontal: 20,
-    paddingBottom: 50,
+    paddingBottom: 80,
   },
   menuCard: {
     flexDirection: 'row',
@@ -401,6 +394,132 @@ const styles = StyleSheet.create({
     height: 12,
     backgroundColor: '#F0F0F0',
     borderRadius: 4,
+  },
+  categoryScroll: {
+    marginBottom: 30,
+  },
+  categoryItem: {
+    alignItems: 'center',
+    padding: 5,
+    marginHorizontal: 5,
+  },
+  categoryIcon: {
+    // width: 80,
+    // height: 80,
+    borderRadius: 20,
+    marginBottom: 5,
+  },
+  categoryLabel: {
+    fontSize: 12,
+    textAlign: 'center',
+  },
+
+  horizontalScroll: {
+    paddingHorizontal: 10,
+    paddingVertical: 12,
+    gap: 40,
+  },
+  imageContainer: {
+    // width: '100%',
+    // height: 200,
+    justifyContent: 'flex-end',
+  },
+  gradientOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '50%',
+    borderRadius: 16,
+  },
+  textContainer: {
+    padding: 14,
+  },
+  itemTitle: {
+    fontSize: 16,
+    fontFamily: 'Inter_700Bold',
+    color: '#FFFFFF',
+    marginBottom: 6,
+    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowRadius: 2,
+  },
+  recommendationsScroll: {
+    paddingHorizontal: 20,
+    gap: 16,
+    paddingBottom: 10,
+  },
+  recommendationCard: {
+    width: 160,
+  },
+  recommendationImage: {
+    width: '100%',
+    height: 180,
+    justifyContent: 'flex-end',
+  },
+  recommendationOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '50%',
+    borderRadius: 16,
+  },
+  recommendationContent: {
+    padding: 12,
+  },
+  recommendationTitle: {
+    fontSize: 15,
+    fontFamily: 'Inter_700Bold',
+    color: '#FFFFFF',
+    marginBottom: 4,
+    textShadowColor: 'rgba(0,0,0,0.35)',
+    textShadowRadius: 2,
+  },
+  recommendationMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  recommendationText: {
+    fontSize: 12,
+    fontFamily: 'Inter_400Regular',
+    color: '#FFFFFF',
+    opacity: 0.9,
+  },
+  headerProfile: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+    paddingHorizontal: 20,
+  },
+  profileSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  avatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#E0E0E0',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  greeting: {
+    fontSize: 14,
+    color: '#777',
+    fontFamily: 'Inter_400Regular',
+  },
+  name: {
+    fontSize: 18,
+    fontFamily: 'Inter_700Bold',
+    color: '#222',
+  },
+  iconButton: {
+    padding: 6,
+    flexDirection: 'row',
+    fontSize: 10,
   },
 });
 
