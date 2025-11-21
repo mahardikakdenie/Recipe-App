@@ -1,63 +1,67 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, ScrollView, SafeAreaView, ImageBackground, useWindowDimensions } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, ScrollView, SafeAreaView, useWindowDimensions } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
+import Item from '@/src/screen/ui/Item';
+import { IRECIPE } from '@/src/types/recipe';
 
 const Journal = () => {
-  const journalEntries = [
-    {
-      id: 1,
-      mealType: 'Breakfast',
-      recipe: {
-        id: 101,
-        name: 'Avocado Toast with Egg',
-        image: 'https://cdn.dummyjson.com/recipe-images/15.webp',
-        time: '15 min',
-        rating: 4.7,
-      },
-      date: 'Today, 08:30 AM',
-    },
-    {
-      id: 2,
-      mealType: 'Lunch',
-      recipe: {
-        id: 102,
-        name: 'Grilled Chicken Bowl',
-        image: 'https://cdn.dummyjson.com/recipe-images/22.webp',
-        time: '25 min',
-        rating: 4.5,
-      },
-      date: 'Today, 01:15 PM',
-    },
-    {
-      id: 3,
-      mealType: 'Lunch',
-      recipe: {
-        id: 102,
-        name: 'Grilled Chicken Bowl',
-        image: 'https://cdn.dummyjson.com/recipe-images/23.webp',
-        time: '25 min',
-        rating: 4.5,
-      },
-      date: 'Today, 01:15 PM',
-    },
-    {
-      id: 4,
-      mealType: 'Lunch',
-      recipe: {
-        id: 102,
-        name: 'Grilled Chicken Bowl',
-        image: 'https://cdn.dummyjson.com/recipe-images/24.webp',
-        time: '25 min',
-        rating: 4.5,
-      },
-      date: 'Today, 01:15 PM',
-    },
-  ];
-
+const journalEntries: IRECIPE[] = [
+  {
+    id: 1,
+    name: 'Avocado Toast with Egg',
+    image: 'https://cdn.dummyjson.com/recipe-images/15.webp',
+    rating: 4.7,
+    prepTimeMinutes: 10,
+    cookTimeMinutes: 15,
+    servings: 2,
+    cuisine: 'Breakfast',
+    saved: true,
+    color: '#E3F2FD',
+    difficulty: 'Easy',
+  },
+  {
+    id: 2,
+    name: 'Grilled Chicken Bowl',
+    image: 'https://cdn.dummyjson.com/recipe-images/22.webp',
+    rating: 4.5,
+    prepTimeMinutes: 15,
+    cookTimeMinutes: 25,
+    servings: 2,
+    cuisine: 'Healthy',
+    saved: false,
+    color: '#FFF8E1',
+    difficulty: 'Medium',
+  },
+  {
+    id: 3,
+    name: 'Mushroom Risotto',
+    image: 'https://cdn.dummyjson.com/recipe-images/33.webp',
+    rating: 4.8,
+    prepTimeMinutes: 10,
+    cookTimeMinutes: 35,
+    servings: 3,
+    cuisine: 'Italian',
+    saved: true,
+    color: '#F3E5F5',
+    difficulty: 'Medium',
+  },
+  {
+    id: 4,
+    name: 'Berry Yogurt Parfait',
+    image: 'https://cdn.dummyjson.com/recipe-images/42.webp',
+    rating: 4.6,
+    prepTimeMinutes: 5,
+    cookTimeMinutes: 0,
+    servings: 1,
+    cuisine: 'Snack',
+    saved: false,
+    color: '#E8F5E9',
+    difficulty: 'Easy',
+  },
+];
   const { width } = useWindowDimensions();
-  const cardWidth = width * 0.44; // 90% layar
+  const cardWidth = width * 0.44;
 
   return (
     <SafeAreaProvider>
@@ -91,32 +95,8 @@ const Journal = () => {
             gap: 10,
           }}>
             {
-              journalEntries.map((entry) => (
-                <View key={entry.id} style={{
-                  position: "relative"
-                }}>
-                  <ImageBackground
-                    source={{ uri: entry.recipe.image }}
-                    style={{ width: cardWidth, height: cardWidth, borderRadius: 16 }}
-                    imageStyle={{ borderRadius: 16 }}
-                  >
-                    <LinearGradient
-                      colors={['transparent', 'rgba(0,0,0,0.6)']}
-                      style={styles.overlay}
-                    />
-                    <View style={styles.cardContent}>
-                      <Text style={styles.cardTitle} numberOfLines={2}>
-                        {entry.recipe.name}
-                      </Text>
-                      <View style={styles.cardMeta}>
-                        <Ionicons name="time-outline" size={14} color="#FFF" />
-                        <Text style={styles.cardMetaText}>{entry.recipe.time}</Text>
-                        <Ionicons name="star-outline" size={14} color="#FFF" />
-                        <Text style={styles.cardMetaText}>{entry.recipe.rating}</Text>
-                      </View>
-                    </View>
-                  </ImageBackground>
-                </View>
+              journalEntries.map((entry: IRECIPE) => (
+                <Item key={entry.id} entry={entry} cardWidth={cardWidth} />
               ))
             }
           </View>
@@ -333,14 +313,12 @@ const styles = StyleSheet.create({
     height: '50%',
     borderRadius: 16,
   },
-
   cardContent: {
     position: 'absolute',
     bottom: 16,
     left: 16,
     right: 16,
   },
-
   cardTitle: {
     fontSize: 18,
     fontFamily: 'Inter_700Bold',
