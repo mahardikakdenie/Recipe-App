@@ -1,3 +1,4 @@
+// app/(tabs)/index.tsx
 import Items from '@/src/screen/ui/Items';
 import apiClient from '../../src/api/client';
 import { Inter_400Regular, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter';
@@ -8,9 +9,53 @@ import { View, Text, Image, StyleSheet, Pressable, TouchableOpacity, ScrollView,
 import { IRECIPE } from '@/src/types/recipe';
 import { LinearGradient } from 'expo-linear-gradient';
 
+const summaryCards = [
+  {
+    id: '1',
+    badge: '✨ Discover More',
+    title: 'Explore Tasty Recipes',
+    subtitle: 'Discover delicious meals crafted just for you.',
+    buttonText: 'Explore Recipes',
+    image: 'https://cdn-icons-png.freepik.com/512/9173/9173213.png?ga=GA1.1.887243274.1762007492',
+  },
+  {
+    id: '2',
+    badge: '🔥 Popular This Week',
+    title: 'Quick & Easy Dinners',
+    subtitle: 'Ready in under 30 minutes — perfect for busy days.',
+    buttonText: 'View Recipes',
+    image: 'https://cdn-icons-png.freepik.com/512/3135/3135715.png',
+  },
+  {
+    id: '3',
+    badge: '🌿 Healthy Picks',
+    title: 'Nourish Your Body',
+    subtitle: 'Fresh, balanced meals for a healthier lifestyle.',
+    buttonText: 'See Healthy Options',
+    image: 'https://cdn-icons-png.freepik.com/512/6331/6331224.png',
+  },
+];
+
+const getGreeting = () => {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12) return 'Good Morning';
+  if (hour >= 12 && hour < 19) return 'Good Afternoon';
+  if (hour < 19) return 'Good Evening';
+  return 'Good Night';
+};
+
+const getCurrentDate = () => {
+  return new Date().toLocaleDateString('en-GB', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+};
+
 const Index = () => {
   const { width } = useWindowDimensions();
-  const cardWidth: number = width * 0.44;
+  const cardWidth = width * 0.44;
 
   const [fontsLoaded] = useFonts({
     Inter_400Regular,
@@ -18,15 +63,18 @@ const Index = () => {
     Inter_700Bold,
   });
 
-  const [lunchMenus, setLunchMenus] = useState<any[]>([]);
+  const [lunchMenus, setLunchMenus] = useState<IRECIPE[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const greeting = getGreeting();
+  const currentDate = getCurrentDate();
 
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
         const data = await apiClient('/', { limit: 6 });
         if (data && Array.isArray(data.recipes)) {
-          setLunchMenus(data.recipes.map((item: any) => ({
+          const formatted = data.recipes.map((item: any) => ({
             id: item.id || Math.random(),
             name: item.name || 'Untitled Recipe',
             image: item.image || 'https://via.placeholder.com/150',
@@ -36,9 +84,10 @@ const Index = () => {
             servings: item.servings || 1,
             cuisine: item.cuisine || 'Unknown',
             saved: item.saved ?? false,
-            color: item.color || '#FFFFFF',
+            color: item.color || '#A8E6CF',
             difficulty: item.difficulty,
-          })));
+          }));
+          setLunchMenus(formatted);
         }
       } catch (error) {
         console.error('Failed to load recipes:', error);
@@ -50,7 +99,7 @@ const Index = () => {
     fetchRecipes();
   }, []);
 
-  const savedCount = 10;
+  const savedCount = lunchMenus.filter(item => item.saved).length;
 
   if (!fontsLoaded) {
     return null;
@@ -64,24 +113,18 @@ const Index = () => {
       <View style={styles.headerProfile}>
         <View style={styles.profileSection}>
           <View style={styles.avatar}>
-            <Ionicons name="person" size={20} color="#666" />
+            <Ionicons name="person" size={20} color="#2E7D32" />
           </View>
           <View>
-            <Text style={styles.greeting}>Hello</Text>
+            <Text style={styles.greeting}>{greeting}</Text>
             <Text style={styles.name}>Tahira</Text>
+            <Text style={styles.dateText}>{currentDate}</Text>
           </View>
         </View>
         <View style={styles.iconButton}>
-          <View style={{
-            backgroundColor: "#ffff",
-            borderColor: 'green',
-            borderWidth: 2,
-            borderRadius: 50,
-          }}>
-            <Ionicons name="notifications-outline" size={28} color="green" />
-          </View>
+          <Ionicons name="notifications-outline" size={28} color="#1B5E20" />
           <View style={styles.saveIconContainer}>
-            <Ionicons name="bookmark" size={28} color="#53df41ff" />
+            <Ionicons name="bookmark" size={28} color="#1B5E20" />
             {savedCount > 0 && (
               <View style={styles.badge}>
                 <Text style={styles.badgeText}>{savedCount}</Text>
@@ -90,29 +133,54 @@ const Index = () => {
           </View>
         </View>
       </View>
-      <View style={styles.mainCard}>
-        <View style={styles.cardContent}>
-          <View style={styles.badgeHighlight}>
-            <Text style={styles.badgeTextSmall}>✨ Discover More</Text>
+
+      <ScrollView
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.carouselContainer}
+        onScroll={(e) => {
+          const x = e.nativeEvent.contentOffset.x;
+          const index = Math.round(x / (width * 0.9));
+          setActiveIndex(index);
+        }}
+        scrollEventThrottle={16}
+      >
+        {summaryCards.map((card) => (
+          <View key={card.id} style={[styles.mainCard, { width: width * 0.9 }]}>
+            <View style={styles.cardContent}>
+              <View style={styles.badgeHighlight}>
+                <Text style={styles.badgeTextSmall}>{card.badge}</Text>
+              </View>
+              <Text style={styles.cardTitle}>{card.title}</Text>
+              <Text style={styles.cardSubtitle}>{card.subtitle}</Text>
+              <Pressable style={({ pressed }) => [styles.actionButton, pressed && { opacity: 0.9 }]}>
+                <Text style={styles.actionButtonText}>{card.buttonText}</Text>
+              </Pressable>
+            </View>
+            <View style={styles.imageWrapper}>
+              <Image
+                source={{ uri: card.image }}
+                style={styles.chefImage}
+                resizeMode="contain"
+              />
+            </View>
           </View>
-          <Text style={styles.cardTitle}>Explore Tasty Recipes</Text>
-          <Text style={styles.cardSubtitle}>
-            Discover delicious meals crafted just for you.
-          </Text>
-          <Pressable style={({ pressed }) => [styles.actionButton, pressed && { opacity: 0.9 }]}>
-            <Text style={styles.actionButtonText}>Explore Recipes</Text>
-          </Pressable>
-        </View>
-        <View style={styles.imageWrapper}>
-          <Image
-            source={{ uri: 'https://cdn-icons-png.freepik.com/512/9173/9173213.png?ga=GA1.1.887243274.1762007492' }}
-            style={styles.chefImage}
-            resizeMode="contain"
+        ))}
+      </ScrollView>
+
+      <View style={styles.dotsContainer}>
+        {summaryCards.map((_, i) => (
+          <View
+            key={i}
+            style={[
+              styles.dot,
+              i === activeIndex ? styles.activeDot : styles.inactiveDot,
+            ]}
           />
-        </View>
+        ))}
       </View>
 
-      {/* Recommendations */}
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Recommendations</Text>
         <TouchableOpacity onPress={() => console.log('See All pressed')}>
@@ -133,7 +201,7 @@ const Index = () => {
               imageStyle={{ borderRadius: 16 }}
             >
               <LinearGradient
-                colors={['transparent', 'rgba(0,0,0,0.7)']}
+                colors={['transparent', 'rgba(0,0,0,0.6)']}
                 style={styles.recommendationOverlay}
               />
               <View style={styles.recommendationContent}>
@@ -169,28 +237,53 @@ const Index = () => {
 const styles = StyleSheet.create({
   pageContainer: {
     flex: 1,
-    backgroundColor: '#FFF9F0',
+    backgroundColor: '#F8FBF8',
   },
   scrollContent: {
     paddingTop: 60,
     paddingBottom: 100,
   },
-  header: {
+  headerProfile: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 24,
-    marginBottom: 28,
+    marginBottom: 24,
+    paddingHorizontal: 20,
   },
-  titleRow: {
+  profileSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 12,
   },
-  headerTitle: {
-    fontSize: 26,
+  avatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#C8E6C9',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  greeting: {
+    fontSize: 14,
+    color: '#388E3C',
+    fontFamily: 'Inter_400Regular',
+    fontWeight: '700'
+  },
+  name: {
+    fontSize: 18,
     fontFamily: 'Inter_700Bold',
-    color: '#222222',
+    color: '#1B5E20',
+  },
+  dateText: {
+    fontSize: 14,
+    color: '#66BB6A',
+    fontFamily: 'Inter_400Regular',
+    marginTop: 2,
+    fontWeight: '800'
+  },
+  iconButton: {
+    flexDirection: 'row',
+    gap: 12,
   },
   saveIconContainer: {
     position: 'relative',
@@ -199,7 +292,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -6,
     right: -6,
-    backgroundColor: '#FF6B35',
+    backgroundColor: '#4CAF50',
     borderRadius: 10,
     minWidth: 18,
     height: 18,
@@ -212,13 +305,20 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontFamily: 'Inter_600SemiBold',
   },
+  carouselContainer: {
+    gap: 10,
+    paddingHorizontal: 10,
+    marginBottom: 8,
+  },
   mainCard: {
-    backgroundColor: '#FFD166',
+    backgroundColor: '#E8F5E9',
     borderRadius: 24,
-    marginHorizontal: 20,
     padding: 24,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#C8E6C9',
   },
   cardContent: {
     flex: 1,
@@ -226,7 +326,7 @@ const styles = StyleSheet.create({
   },
   badgeHighlight: {
     alignSelf: 'flex-start',
-    backgroundColor: '#FF9E44',
+    backgroundColor: '#4CAF50',
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 20,
@@ -239,18 +339,18 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 20,
     fontFamily: 'Inter_700Bold',
-    color: '#1A1A1A',
+    color: '#1B5E20',
     marginTop: 8,
     marginBottom: 8,
   },
   cardSubtitle: {
     fontSize: 14,
     fontFamily: 'Inter_400Regular',
-    color: '#1A1A1A',
+    color: '#388E3C',
     marginBottom: 20,
   },
   actionButton: {
-    backgroundColor: '#EF476F',
+    backgroundColor: '#66BB6A',
     paddingVertical: 13,
     paddingHorizontal: 28,
     borderRadius: 30,
@@ -269,6 +369,24 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 24,
   },
+  dotsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 28,
+    gap: 6,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  activeDot: {
+    backgroundColor: '#4CAF50',
+  },
+  inactiveDot: {
+    backgroundColor: '#A5D6A7',
+  },
   sectionHeader: {
     paddingHorizontal: 24,
     marginVertical: 28,
@@ -279,176 +397,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 22,
     fontFamily: 'Inter_700Bold',
-    color: '#222222',
+    color: '#1B5E20',
   },
   seeAllText: {
     fontSize: 14,
-    color: '#EF476F',
+    color: '#66BB6A',
     fontFamily: 'Inter_600SemiBold',
-  },
-  menuList: {
-    paddingHorizontal: 20,
-    paddingBottom: 80,
-  },
-  menuCard: {
-    flexDirection: 'row',
-    borderRadius: 20,
-    padding: 16,
-    marginBottom: 20,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-  },
-  menuImage: {
-    width: 84,
-    height: 84,
-    borderRadius: 16,
-    marginRight: 16,
-  },
-  menuContent: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  menuActions: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    flexDirection: 'row',
-    gap: 10,
-  },
-  addButton: {
-    backgroundColor: '#FFFFFF',
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  menuTitle: {
-    fontSize: 17,
-    fontFamily: 'Inter_700Bold',
-    color: '#1A1A1A',
-    marginBottom: 6,
-    maxWidth: '85%',
-  },
-  metaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginBottom: 6,
-  },
-  metaItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  metaText: {
-    fontSize: 12,
-    fontFamily: 'Inter_400Regular',
-    color: '#666',
-  },
-  cuisineTag: {
-    alignSelf: 'flex-start',
-    flexDirection: 'row',
-    gap: 10,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-  },
-  cuisineText: {
-    fontSize: 11,
-    backgroundColor: '#E0E0E0',
-    fontFamily: 'Inter_600SemiBold',
-    padding: 5,
-    borderRadius: 10,
-    color: '#444',
-  },
-  skeletonCard: {
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 16,
-    marginBottom: 20,
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOpacity: 0.03,
-    shadowRadius: 4,
-  },
-  skeletonImage: {
-    width: 84,
-    height: 84,
-    borderRadius: 16,
-    backgroundColor: '#F0F0F0',
-    marginRight: 16,
-  },
-  skeletonContent: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  skeletonLine: {
-    backgroundColor: '#F0F0F0',
-    borderRadius: 4,
-    marginBottom: 4,
-  },
-  skeletonMetaRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 6,
-  },
-  skeletonMetaItem: {
-    height: 12,
-    backgroundColor: '#F0F0F0',
-    borderRadius: 4,
-  },
-  categoryScroll: {
-    marginBottom: 30,
-  },
-  categoryItem: {
-    alignItems: 'center',
-    padding: 5,
-    marginHorizontal: 5,
-  },
-  categoryIcon: {
-    // width: 80,
-    // height: 80,
-    borderRadius: 20,
-    marginBottom: 5,
-  },
-  categoryLabel: {
-    fontSize: 12,
-    textAlign: 'center',
-  },
-
-  horizontalScroll: {
-    paddingHorizontal: 10,
-    paddingVertical: 12,
-    gap: 40,
-  },
-  imageContainer: {
-    // width: '100%',
-    // height: 200,
-    justifyContent: 'flex-end',
-  },
-  gradientOverlay: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: '50%',
-    borderRadius: 16,
-  },
-  textContainer: {
-    padding: 14,
-  },
-  itemTitle: {
-    fontSize: 16,
-    fontFamily: 'Inter_700Bold',
-    color: '#FFFFFF',
-    marginBottom: 6,
-    textShadowColor: 'rgba(0,0,0,0.3)',
-    textShadowRadius: 2,
   },
   recommendationsScroll: {
     paddingHorizontal: 20,
@@ -462,6 +416,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 180,
     justifyContent: 'flex-end',
+    borderRadius: 16,
   },
   recommendationOverlay: {
     position: 'absolute',
@@ -479,7 +434,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter_700Bold',
     color: '#FFFFFF',
     marginBottom: 4,
-    textShadowColor: 'rgba(0,0,0,0.35)',
+    textShadowColor: 'rgba(0,0,0,0.4)',
     textShadowRadius: 2,
   },
   recommendationMeta: {
@@ -491,43 +446,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: 'Inter_400Regular',
     color: '#FFFFFF',
-    opacity: 0.9,
+    opacity: 0.95,
   },
-  headerProfile: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 24,
+  menuList: {
     paddingHorizontal: 20,
-  },
-  profileSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#E0E0E0',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  greeting: {
-    fontSize: 14,
-    color: '#777',
-    fontFamily: 'Inter_400Regular',
-  },
-  name: {
-    fontSize: 18,
-    fontFamily: 'Inter_700Bold',
-    color: '#222',
-  },
-  iconButton: {
-    padding: 6,
-    flexDirection: 'row',
-    fontSize: 10,
-    gap: 10,
+    paddingBottom: 80,
   },
 });
 
