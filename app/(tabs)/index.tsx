@@ -8,6 +8,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, Pressable, TouchableOpacity, ScrollView, useWindowDimensions, ImageBackground } from 'react-native';
 import { IRECIPE } from '@/src/types/recipe';
 import { LinearGradient } from 'expo-linear-gradient';
+import AppBar from '@/src/components/ui/appbar/appbar';
 
 const summaryCards = [
   {
@@ -36,23 +37,6 @@ const summaryCards = [
   },
 ];
 
-const getGreeting = () => {
-  const hour = new Date().getHours();
-  if (hour >= 5 && hour < 12) return 'Good Morning';
-  if (hour >= 12 && hour < 19) return 'Good Afternoon';
-  if (hour < 19) return 'Good Evening';
-  return 'Good Night';
-};
-
-const getCurrentDate = () => {
-  return new Date().toLocaleDateString('en-GB', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
-};
-
 const Index = () => {
   const { width } = useWindowDimensions();
   const cardWidth = width * 0.44;
@@ -66,8 +50,6 @@ const Index = () => {
   const [lunchMenus, setLunchMenus] = useState<IRECIPE[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
-  const greeting = getGreeting();
-  const currentDate = getCurrentDate();
 
   useEffect(() => {
     const fetchRecipes = async () => {
@@ -99,7 +81,6 @@ const Index = () => {
     fetchRecipes();
   }, []);
 
-  const savedCount = lunchMenus.filter(item => item.saved).length;
 
   if (!fontsLoaded) {
     return null;
@@ -110,29 +91,7 @@ const Index = () => {
       style={styles.pageContainer}
       contentContainerStyle={styles.scrollContent}
     >
-      <View style={styles.headerProfile}>
-        <View style={styles.profileSection}>
-          <View style={styles.avatar}>
-            <Ionicons name="person" size={20} color="#2E7D32" />
-          </View>
-          <View>
-            <Text style={styles.greeting}>{greeting}</Text>
-            <Text style={styles.name}>Tahira</Text>
-            <Text style={styles.dateText}>{currentDate}</Text>
-          </View>
-        </View>
-        <View style={styles.iconButton}>
-          <Ionicons name="notifications-outline" size={28} color="#1B5E20" />
-          <View style={styles.saveIconContainer}>
-            <Ionicons name="bookmark" size={28} color="#1B5E20" />
-            {savedCount > 0 && (
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>{savedCount}</Text>
-              </View>
-            )}
-          </View>
-        </View>
-      </View>
+      <AppBar />
 
       <ScrollView
         horizontal
@@ -242,68 +201,6 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingTop: 60,
     paddingBottom: 100,
-  },
-  headerProfile: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 24,
-    paddingHorizontal: 20,
-  },
-  profileSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#C8E6C9',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  greeting: {
-    fontSize: 14,
-    color: '#388E3C',
-    fontFamily: 'Inter_400Regular',
-    fontWeight: '700'
-  },
-  name: {
-    fontSize: 18,
-    fontFamily: 'Inter_700Bold',
-    color: '#1B5E20',
-  },
-  dateText: {
-    fontSize: 14,
-    color: '#66BB6A',
-    fontFamily: 'Inter_400Regular',
-    marginTop: 2,
-    fontWeight: '800'
-  },
-  iconButton: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  saveIconContainer: {
-    position: 'relative',
-  },
-  badge: {
-    position: 'absolute',
-    top: -6,
-    right: -6,
-    backgroundColor: '#4CAF50',
-    borderRadius: 10,
-    minWidth: 18,
-    height: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 4,
-  },
-  badgeText: {
-    color: '#FFFFFF',
-    fontSize: 10,
-    fontFamily: 'Inter_600SemiBold',
   },
   carouselContainer: {
     gap: 10,
