@@ -9,7 +9,7 @@ const tabsConfig = [
   { name: 'chef', title: 'Restaurant', icon: 'restaurant' },
   { name: 'search', title: 'Search', icon: 'search' },
   { name: 'journal', title: 'Journal', icon: 'clipboard' },
-  { name: 'recipe', title: 'Profile', icon: 'people-circle' },
+  { name: 'auth', title: 'Profile', icon: 'people-circle' },
 ] as const;
 
 export default function TabLayout() {

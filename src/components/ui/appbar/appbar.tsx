@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 import useAppBarHooks from './useAppbar.hooks';
 import styles from './appbar.styles';
+import { useAuth } from '@/src/context/Auth/AuthContext';
 
 type AppBarProps = object;
 
@@ -12,6 +13,8 @@ const AppBar = (props: AppBarProps) => {
     greeting,
     currentDate,
   } = useAppBarHooks();
+
+  const {user} = useAuth();
   
   return (
     <View style={styles.headerProfile}>
@@ -21,7 +24,7 @@ const AppBar = (props: AppBarProps) => {
         </View>
         <View>
           <Text style={styles.greeting}>{greeting}</Text>
-          <Text style={styles.name}>Guest Mode</Text>
+          <Text style={styles.name}>{user?.email}</Text>
           <Text style={styles.dateText}>{currentDate}</Text>
         </View>
       </View>

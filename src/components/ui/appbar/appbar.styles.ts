@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
     fontWeight: '700'
   },
   name: {
-    fontSize: 18,
+    fontSize: 15,
     fontFamily: 'Inter_700Bold',
     color: '#1B5E20',
   },

@@ -1,13 +1,15 @@
 // /src/contexts/Auth/AuthContext.tsx
+import { getUser } from '@/src/utils/storage';
 import React, { createContext, useContext, useEffect, useState } from 'react'; 
 
 interface User {
     email: string;
-    password: string;
+    id: string;
 }
 
 type AuthContextType = {
   user: User | null;
+  setUser: (user: User) => void;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 };
@@ -24,12 +26,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => setUser(null);
 
   useEffect(() => {
-    console.log("Haloo");
+    const getCurrentUser = async () => {
+      const user = await getUser();
+      console.log("user : ", user);
+      setUser(user);
+    };
+
+    getCurrentUser();
     
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, setUser }}>
       {children}
     </AuthContext.Provider>
   );
