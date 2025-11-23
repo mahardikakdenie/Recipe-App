@@ -24,7 +24,7 @@ const AppBar = (props: AppBarProps) => {
         </View>
         <View>
           <Text style={styles.greeting}>{greeting}</Text>
-          <Text style={styles.name}>{user?.email}</Text>
+          <Text style={styles.name ?? 'Guest'}>{user?.email}</Text>
           <Text style={styles.dateText}>{currentDate}</Text>
         </View>
       </View>
