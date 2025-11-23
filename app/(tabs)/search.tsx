@@ -15,23 +15,6 @@ const Search = (props: SearchProps) => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <View style={styles.header}>
-          <View style={styles.profileSection}>
-            <Image
-              style={styles.avatar}
-              source={{ uri: 'https://cdn-icons-png.freepik.com/512/9173/9173213.png?ga=GA1.1.887243274.1762007492' }}
-              resizeMode="cover"
-            />
-            <View>
-              <Text style={styles.greeting}>Hello</Text>
-              <Text style={styles.name}>Emily Ava</Text>
-            </View>
-          </View>
-          <TouchableOpacity style={styles.iconButton}>
-            <Ionicons name="notifications" size={24} color="#000" />
-          </TouchableOpacity>
-        </View>
-
         <Text style={styles.title}>Explore New Recipes</Text>
 
         <View style={styles.searchBar}>
@@ -101,7 +84,7 @@ export default Search;
 
 const styles = StyleSheet.create({
   safeArea: {
-    paddingTop: 60,
+    paddingTop: 20,
     flex: 1,
     backgroundColor: '#fff',
   },
