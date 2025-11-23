@@ -10,6 +10,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import SummaryCards from '@/src/components/ui/summaryCard/Card';
 import SkeletonCard from '@/src/components/loading/skeleton';
 import { useTheme } from '@/src/context/Theme/ThemeContext';
+import TitleSection from '@/src/components/ui/TitleSection';
 
 const Index = () => {
   const { width } = useWindowDimensions();
@@ -66,16 +67,7 @@ const Index = () => {
     >
       <SummaryCards />
 
-      <View style={styles.sectionHeader}>
-        <Text style={[styles.sectionTitle, { color: theme.colors.text, fontFamily: theme.fonts.bold }]}>
-          Recommendations
-        </Text>
-        <TouchableOpacity onPress={() => console.log('See All pressed')}>
-          <Text style={[styles.seeAllText, { color: theme.colors.primaryLight, fontFamily: theme.fonts.medium }]}>
-            See All
-          </Text>
-        </TouchableOpacity>
-      </View>
+      <TitleSection title='Recomendation' buttonTitle='See All' onPress={() => {}} />
 
       <ScrollView
         horizontal
@@ -126,16 +118,7 @@ const Index = () => {
         )}
       </ScrollView>
 
-      <View style={styles.sectionHeader}>
-        <Text style={[styles.sectionTitle, { color: theme.colors.text, fontFamily: theme.fonts.bold }]}>
-          Lunch or Dinner
-        </Text>
-        <TouchableOpacity onPress={() => console.log('See All pressed')}>
-          <Text style={[styles.seeAllText, { color: theme.colors.primaryLight, fontFamily: theme.fonts.medium }]}>
-            See All
-          </Text>
-        </TouchableOpacity>
-      </View>
+      <TitleSection title='Lunch or Dinner' buttonTitle='See All' onPress={() => {}} />
 
       <View style={styles.menuList}>
         <Items isLoading={loading} entries={lunchMenus} cardWidth={cardWidth} />
@@ -151,19 +134,6 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingTop: 30,
     paddingBottom: 100,
-  },
-  sectionHeader: {
-    paddingHorizontal: 24,
-    marginVertical: 28,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  sectionTitle: {
-    fontSize: 22,
-  },
-  seeAllText: {
-    fontSize: 14,
   },
   recommendationsScroll: {
     paddingHorizontal: 20,
