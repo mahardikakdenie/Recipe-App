@@ -19,8 +19,8 @@ function RootLayoutNav() {
   return (
     <Stack
       screenOptions={{
-        header: (props) => <AppBar {...props} />,
-        headerShown: path !== '/auth' && path !== '/login' && !!user,
+        header: (props) => <AppBar />,
+        headerShown: path !== '/auth' && !!user,
         headerShadowVisible: false,
       }}
     >
