@@ -1,135 +1,160 @@
+// app/search.tsx
 import { Ionicons } from '@expo/vector-icons';
 import * as React from 'react';
-import { Image, View, StyleSheet, Text, TextInput, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
+import { Image, View, StyleSheet, Text, TextInput, TouchableOpacity, ScrollView, SafeAreaView, useWindowDimensions } from 'react-native';
+import { useTheme } from '@/src/context/Theme/ThemeContext';
+import TitleSection from '@/src/components/ui/TitleSection';
+import apiClient from '@/src/api/client';
+import { IRECIPE } from '@/src/types/recipe';
+import Items from '@/src/components/ui/Items';
+import SkeletonCard from '@/src/components/loading/skeleton';
 
-type SearchProps = object;
+const Search = () => {
+  const { theme } = useTheme();
+  const [activeCategory, setActiveCategory] = React.useState(0);
+  const [menus, setMenus] = React.useState<IRECIPE[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [categoryLoading, setCategoryLoading] = React.useState(true);
 
-const Search = (props: SearchProps) => {
-  const recipes = [
-    { id: 1, title: 'Aegean Breeze Salad', time: '20 minutes', image: 'https://vjcooks.com/wp-content/uploads/2022/05/VJcooks_KidsPastaSalad_8-360x480.jpg' },
-    { id: 2, title: 'Margherita Pizza', time: '25 minutes', image: 'https://img.freepik.com/free-photo/pizza-pizza-filled-with-tomatoes-salami-olives_140725-1200.jpg' },
-    { id: 3, title: 'Spicy Burger', time: '15 minutes', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLmLX7X-iZavaUWZaZLzcnvugr3uMWD5OmQLDgY1OfMcQ5c7nv65fDG5PVdA4OODE4Y-qD_IGFZv08gliJuV5PsaunOov-og8pSiAx0VOzAg' },
-    { id: 4, title: 'Grilled Steak', time: '30 minutes', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_LmXCg5oPfWo_URI2uI5ChWCogQKhCxuWMZvFX_SiOA1BDeP-yWSqAp8lZx30VuYWvSJWZJk4XH4sp7hY23C19vZu6tk7CEtjlTeLHhNk&s=10' },
-  ];
+  const { width } = useWindowDimensions();
+  const cardWidth = width * 0.44;
+
+  const [categories, setCategories] = React.useState([
+    { label: 'Salad', icon: 'https://vjcooks.com/wp-content/uploads/2022/05/VJcooks_KidsPastaSalad_8-360x480.jpg' },
+    { label: 'Pizza', icon: 'https://img.freepik.com/free-photo/pizza-pizza-filled-with-tomatoes-salami-olives_140725-1200.jpg' },
+    { label: 'Burger', icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLmLX7X-iZavaUWZaZLzcnvugr3uMWD5OmQLDgY1OfMcQ5c7nv65fDG5PVdA4OODE4Y-qD_IGFZv08gliJuV5PsaunOov-og8pSiAx0VOzAg' },
+    { label: 'Steak', icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_LmXCg5oPfWo_URI2uI5ChWCogQKhCxuWMZvFX_SiOA1BDeP-yWSqAp8lZx30VuYWvSJWZJk4XH4sp7hY23C19vZu6tk7CEtjlTeLHhNk&s=10' },
+    { label: 'Sea Food', icon: 'https://i.gojekapi.com/darkroom/gofood-indonesia/v2/images/uploads/77ef47b2-c289-46be-8660-74f4c93a8676_c76e6ac4-da09-422f-bc5b-33d378849430_Go-Biz_20190323_005453.jpeg?auto=format' },
+    { label: 'Dessert', icon: 'https://img.freepik.com/free-photo/chocolate-cake-isolated-white-background_144627-20941.jpg' },
+    { label: 'Smoothie', icon: 'https://img.freepik.com/free-photo/glass-smoothie-with-fruits-strawberries-blueberries_144627-20945.jpg' },
+  ]);
+
+  const getDataTags = async () => {
+    try {
+      setCategoryLoading(true);
+      const data: string[] = await apiClient('/tags');
+      const allTags: string[] = data.splice(10, 17);
+      const uniqueTags = [...new Set(allTags)].slice(0, 7);
+
+      setCategories((prev) =>
+        prev.map((item, index) => ({
+          ...item,
+          label: uniqueTags[index] ?? item.label,
+        }))
+      );
+    } catch (error) {
+      console.error('Failed to fetch tags:', error);
+    } finally {
+      setCategoryLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    const fetchRecipes = async () => {
+      try {
+        const data = await apiClient('/', { limit: 6 });
+        if (data && Array.isArray(data.recipes)) {
+          const formatted = data.recipes.map((item: any) => ({
+            id: item.id || Math.random(),
+            name: item.name || 'Untitled Recipe',
+            image: item.image || 'https://via.placeholder.com/150',
+            rating: item.rating || 0,
+            prepTimeMinutes: item.prepTimeMinutes || 0,
+            cookTimeMinutes: item.cookTimeMinutes || 0,
+            servings: item.servings || 1,
+            cuisine: item.cuisine || 'Unknown',
+            saved: item.saved ?? false,
+            color: item.color || theme.colors.surface,
+            difficulty: item.difficulty,
+          }));
+          setMenus(formatted);
+        }
+      } catch (error) {
+        console.error('Failed to load recipes:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecipes();
+  }, [theme]);
+
+
+  React.useEffect(() => {
+    getDataTags();
+  }, []);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background }]}>
       <View style={styles.container}>
-        <Text style={styles.title}>Explore New Recipes</Text>
-
-        <View style={styles.searchBar}>
-          <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
+        <View style={[styles.searchBar, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+          <Ionicons name="search" size={20} color={theme.colors.textSecondary} style={styles.searchIcon} />
           <TextInput
-            style={styles.searchInput}
+            style={[styles.searchInput, { color: theme.colors.text }]}
             placeholder="Search recipes"
-            placeholderTextColor="#888"
+            placeholderTextColor={theme.colors.textHint}
           />
           <TouchableOpacity style={styles.filterButton}>
-            <Ionicons name="filter" size={20} color="#000" />
+            <Ionicons name="filter" size={20} color={theme.colors.text} />
           </TouchableOpacity>
         </View>
 
+
+        <TitleSection title='Recipe' buttonTitle='See All' paddingHorizontal={0} onPress={() => { }} />
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryScroll}>
-          {[
-            { label: 'Salad', icon: 'https://vjcooks.com/wp-content/uploads/2022/05/VJcooks_KidsPastaSalad_8-360x480.jpg' },
-            { label: 'Pizza', icon: 'https://img.freepik.com/free-photo/pizza-pizza-filled-with-tomatoes-salami-olives_140725-1200.jpg' },
-            { label: 'Burger', icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLmLX7X-iZavaUWZaZLzcnvugr3uMWD5OmQLDgY1OfMcQ5c7nv65fDG5PVdA4OODE4Y-qD_IGFZv08gliJuV5PsaunOov-og8pSiAx0VOzAg' },
-            { label: 'Steak', icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_LmXCg5oPfWo_URI2uI5ChWCogQKhCxuWMZvFX_SiOA1BDeP-yWSqAp8lZx30VuYWvSJWZJk4XH4sp7hY23C19vZu6tk7CEtjlTeLHhNk&s=10' },
-            { label: 'Sea Food', icon: 'https://i.gojekapi.com/darkroom/gofood-indonesia/v2/images/uploads/77ef47b2-c289-46be-8660-74f4c93a8676_c76e6ac4-da09-422f-bc5b-33d378849430_Go-Biz_20190323_005453.jpeg?auto=format' },
-            { label: 'Dessert', icon: 'https://img.freepik.com/free-photo/chocolate-cake-isolated-white-background_144627-20941.jpg' },
-            { label: 'Smoothie', icon: 'https://img.freepik.com/free-photo/glass-smoothie-with-fruits-strawberries-blueberries_144627-20945.jpg' },
-          ].map((item, index) => (
-            <TouchableOpacity key={index} style={styles.categoryItem}>
+          { categoryLoading ? <SkeletonCard cardWidth={80} />  : categories.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              style={[
+                styles.categoryItem,
+                {
+                  backgroundColor: activeCategory === index ? theme.colors.primaryLight : theme.colors.surface,
+                  borderColor: activeCategory === index ? theme.colors.primary : theme.colors.border,
+                },
+              ]}
+              onPress={() => setActiveCategory(index)}
+            >
               <Image source={{ uri: item.icon }} style={styles.categoryIcon} />
-              <Text style={styles.categoryLabel}>{item.label}</Text>
+              <Text
+                style={[
+                  styles.categoryLabel,
+                  {
+                    color: activeCategory === index ? '#ffff' : theme.colors.textSecondary,
+                    fontFamily: activeCategory === index ? theme.fonts.bold : theme.fonts.regular,
+                  },
+                ]}
+              >
+                {item.label}
+              </Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
 
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
-          {recipes.map((recipe) => (
-            <TouchableOpacity key={recipe.id} style={styles.recipeCard}>
-              <View style={styles.recipeInfo}>
-                <Text style={styles.recipeTitle}>{recipe.title}</Text>
-                <View style={styles.timeRow}>
-                  <Ionicons name="time" size={16} color="#666" />
-                  <Text style={styles.timeText}>{recipe.time}</Text>
-                </View>
-              </View>
-              <View style={styles.recipeImageContainer}>
-                <Image source={{ uri: recipe.image }} style={styles.recipeImage} />
-                <TouchableOpacity style={styles.heartButton}>
-                  <Ionicons name="heart-outline" size={24} color="#FFF" />
-                </TouchableOpacity>
-              </View>
-            </TouchableOpacity>
-          ))}
-
-          <TouchableOpacity style={styles.seeRecipeButtonFull}>
-            <Text style={styles.seeRecipeButtonText}>See Recipe</Text>
-            <View style={styles.chatIconWrapper}>
-              <Ionicons name="chatbubble-ellipses" size={24} color="#FFF" />
-            </View>
-          </TouchableOpacity>
+        <ScrollView>
+          <Items entries={menus} isLoading={loading} cardWidth={cardWidth} />
         </ScrollView>
       </View>
     </SafeAreaView>
   );
 };
 
-export default Search;
-
 const styles = StyleSheet.create({
   safeArea: {
     paddingTop: 20,
     flex: 1,
-    backgroundColor: '#fff',
   },
   container: {
     flex: 1,
     paddingHorizontal: 20,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-    marginTop: 10,
-  },
-  profileSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-  },
-  greeting: {
-    fontSize: 12,
-    color: '#888',
-  },
-  name: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
     borderRadius: 25,
     paddingHorizontal: 15,
     paddingVertical: 10,
     marginBottom: 20,
+    borderWidth: 1,
   },
   searchIcon: {
     marginRight: 10,
@@ -143,18 +168,23 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   categoryScroll: {
-    marginBottom: 30,
+    marginBottom: 24,
   },
   categoryItem: {
     alignItems: 'center',
-    padding: 5,
-    marginHorizontal: 5,
+    justifyContent: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 30,
+    marginHorizontal: 6,
+    borderRadius: 14,
+    minWidth: 88,
+    // height: 88,
   },
   categoryIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    marginBottom: 5,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginBottom: 6,
   },
   categoryLabel: {
     fontSize: 12,
@@ -164,19 +194,20 @@ const styles = StyleSheet.create({
     paddingBottom: 80,
   },
   recipeCard: {
-    backgroundColor: '#FFF0F5',
     borderRadius: 15,
     padding: 15,
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
   },
   recipeInfo: {
     flex: 1,
   },
   recipeTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Inter_700Bold',
     marginBottom: 5,
   },
   timeRow: {
@@ -186,7 +217,6 @@ const styles = StyleSheet.create({
   },
   timeText: {
     fontSize: 13,
-    color: '#666',
   },
   recipeImageContainer: {
     position: 'relative',
@@ -200,7 +230,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 5,
     right: 5,
-    backgroundColor: 'rgba(0,0,0,0.2)',
     borderRadius: 10,
     padding: 2,
   },
@@ -208,28 +237,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#FFF0F5',
     borderRadius: 15,
     paddingVertical: 12,
     paddingHorizontal: 15,
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    borderWidth: 1,
   },
   seeRecipeButtonText: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#000',
+    fontFamily: 'Inter_700Bold',
   },
   chatIconWrapper: {
-    backgroundColor: '#000',
     borderRadius: 10,
     padding: 4,
   },
-  iconButton: {
-    padding: 5,
-  },
 });
+
+export default Search;

@@ -7,10 +7,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 50,
     paddingHorizontal: 20,
-    backgroundColor: '#ffff'
+    backgroundColor: '#ffff',
+    flexWrap: 'wrap'
   },
   profileSection: {
     flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  searchProfileSection: {
+    flexDirection: 'row-reverse',
+    justifyContent: 'space-between',
+    width: '100%',
     alignItems: 'center',
     gap: 12,
   },
@@ -32,6 +40,8 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: 'Inter_700Bold',
     color: '#1B5E20',
+    flexWrap: 'wrap',
+    width: '100%'
   },
   dateText: {
     fontSize: 14,
