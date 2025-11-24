@@ -20,7 +20,7 @@ const useAppBarHooks = () => {
         return 'Good Night';
     }, [])
     const getGreeting = () => {
-        return isSearhPage ? `Helo ${username} ${getMomentGreting}` : getMomentGreting;
+        return isSearhPage ? `Helo ${username ?? 'Guest'} ${getMomentGreting}` : getMomentGreting;
     };
 
     const getCurrentDate = () => {
