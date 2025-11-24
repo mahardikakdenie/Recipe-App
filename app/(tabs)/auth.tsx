@@ -140,9 +140,8 @@ const AuthScreen = () => {
     router.replace('/auth');
   };
 
+  const [activeTab, setActiveTab] = useState('recipes');
   if (user) {
-    const [activeTab, setActiveTab] = useState<'recipes' | 'bookmarks'>('recipes');
-
     return (
       <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <View style={styles.profileHeader}>
