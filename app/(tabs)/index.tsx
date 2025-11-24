@@ -11,6 +11,7 @@ import SummaryCards from '@/src/components/ui/summaryCard/Card';
 import SkeletonCard from '@/src/components/loading/skeleton';
 import { useTheme } from '@/src/context/Theme/ThemeContext';
 import TitleSection from '@/src/components/ui/TitleSection';
+import { convertFormattedRecipe } from '@/src/utils/constant';
 
 const Index = () => {
   const { width } = useWindowDimensions();
@@ -31,19 +32,7 @@ const Index = () => {
       try {
         const data = await apiClient('/', { limit: 6 });
         if (data && Array.isArray(data.recipes)) {
-          const formatted = data.recipes.map((item: any) => ({
-            id: item.id || Math.random(),
-            name: item.name || 'Untitled Recipe',
-            image: item.image || 'https://via.placeholder.com/150',
-            rating: item.rating || 0,
-            prepTimeMinutes: item.prepTimeMinutes || 0,
-            cookTimeMinutes: item.cookTimeMinutes || 0,
-            servings: item.servings || 1,
-            cuisine: item.cuisine || 'Unknown',
-            saved: item.saved ?? false,
-            color: item.color || theme.colors.surface,
-            difficulty: item.difficulty,
-          }));
+          const formatted = convertFormattedRecipe(data.recipes, theme);
           setLunchMenus(formatted);
         }
       } catch (error) {
