@@ -70,21 +70,6 @@ const journalEntries: IRECIPE[] = [
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.header}>
-            <View style={styles.profileSection}>
-              <View style={styles.avatar}>
-                <Ionicons name="person" size={20} color="#666" />
-              </View>
-              <View>
-                <Text style={styles.greeting}>Hello</Text>
-                <Text style={styles.name}>Tahira</Text>
-              </View>
-            </View>
-            <TouchableOpacity style={styles.iconButton}>
-              <Ionicons name="notifications-outline" size={24} color="#2D2D2D" />
-            </TouchableOpacity>
-          </View>
-
           <Text style={styles.title}>My Food Journal</Text>
           <Text style={styles.subtitle}>Track what you eat and cook every day</Text>
 
@@ -143,7 +128,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingTop: 40,
+    paddingTop: 20,
     paddingBottom: 200,
   },
   header: {
