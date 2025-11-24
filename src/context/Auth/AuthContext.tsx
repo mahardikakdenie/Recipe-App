@@ -1,5 +1,5 @@
 // /src/contexts/Auth/AuthContext.tsx
-import { getUser } from '@/src/utils/storage';
+import { getUser, removeToken, removeUser } from '@/src/utils/storage';
 import React, { createContext, useContext, useEffect, useState } from 'react'; 
 
 interface User {
@@ -23,7 +23,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // ... logic login
   };
 
-  const logout = () => setUser(null);
+  const logout = async () => {
+    setUser(null);
+    await removeToken();
+    await removeUser();
+  };
 
   useEffect(() => {
     const getCurrentUser = async () => {
