@@ -8,6 +8,7 @@ import apiClient from '@/src/api/client';
 import { IRECIPE } from '@/src/types/recipe';
 import Items from '@/src/components/ui/Items';
 import SkeletonCard from '@/src/components/loading/skeleton';
+import { convertFormattedRecipe } from '@/src/utils/constant';
 
 const Search = () => {
   const { theme } = useTheme();
@@ -54,19 +55,7 @@ const Search = () => {
       try {
         const data = await apiClient('/', { limit: 6 });
         if (data && Array.isArray(data.recipes)) {
-          const formatted = data.recipes.map((item: any) => ({
-            id: item.id || Math.random(),
-            name: item.name || 'Untitled Recipe',
-            image: item.image || 'https://via.placeholder.com/150',
-            rating: item.rating || 0,
-            prepTimeMinutes: item.prepTimeMinutes || 0,
-            cookTimeMinutes: item.cookTimeMinutes || 0,
-            servings: item.servings || 1,
-            cuisine: item.cuisine || 'Unknown',
-            saved: item.saved ?? false,
-            color: item.color || theme.colors.surface,
-            difficulty: item.difficulty,
-          }));
+          const formatted = convertFormattedRecipe(data.recipes, theme);
           setMenus(formatted);
         }
       } catch (error) {
@@ -102,7 +91,7 @@ const Search = () => {
 
         <TitleSection title='Recipe' buttonTitle='See All' paddingHorizontal={0} onPress={() => { }} />
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryScroll}>
-          { categoryLoading ? <SkeletonCard cardWidth={80} />  : categories.map((item, index) => (
+          {categoryLoading ? Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} cardWidth={80} />) : categories.map((item, index) => (
             <TouchableOpacity
               key={index}
               style={[

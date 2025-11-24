@@ -4,7 +4,7 @@ import { StyleSheet } from 'react-native';
 
 type ColorScheme = 'light';
 
-interface Theme {
+export interface Theme {
   colors: {
     primary: string;
     primaryLight: string;
