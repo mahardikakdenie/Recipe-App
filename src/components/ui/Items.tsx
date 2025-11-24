@@ -1,9 +1,10 @@
 // src/components/ui/Items.tsx
 import * as React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { IRECIPE } from '@/src/types/recipe';
 import Item from '@/src/components/ui/Item';
 import SkeletonCard from '@/src/components/loading/skeleton';
+import { useRouter } from 'expo-router';
 
 interface ItemsProps {
   entries: IRECIPE[];
@@ -13,6 +14,7 @@ interface ItemsProps {
 
 const Items = (props: ItemsProps) => {
   const { entries, cardWidth, isLoading } = props;
+  const router = useRouter();
 
   return (
     <View style={styles.container}>
@@ -23,9 +25,13 @@ const Items = (props: ItemsProps) => {
             </View>
           ))
         : entries.map((entry) => (
-            <View key={entry.id} style={styles.itemWrapper}>
+            <TouchableOpacity onPress={() => {
+                if (entry && entry.id) {
+                    router.push(`/recipe/${entry.id}`)
+                }
+            }} key={entry.id} style={styles.itemWrapper}>
               <Item entry={entry} cardWidth={cardWidth} />
-            </View>
+            </TouchableOpacity>
           ))}
     </View>
   );
