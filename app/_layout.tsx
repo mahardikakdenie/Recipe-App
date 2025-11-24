@@ -6,7 +6,7 @@ import { Inter_400Regular, Inter_600SemiBold, Inter_700Bold } from "@expo-google
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import { ThemeProvider } from "@/src/context/Theme/ThemeContext";
-import { AuthProvider, useAuth } from "@/src/context/Auth/AuthContext";
+import { AuthProvider } from "@/src/context/Auth/AuthContext";
 import AppBar from "@/src/components/ui/appbar/appbar";
 
 SplashScreen.preventAutoHideAsync();
@@ -14,13 +14,12 @@ SplashScreen.preventAutoHideAsync();
 // Komponen baru di dalam AuthProvider
 function RootLayoutNav() {
   const path = usePathname();
-  const { user } = useAuth();
 
   return (
     <Stack
       screenOptions={{
         header: (props) => <AppBar />,
-        headerShown: path !== '/auth' && !!user,
+        headerShown: path !== '/auth',
         headerShadowVisible: false,
       }}
     >
