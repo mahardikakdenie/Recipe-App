@@ -1,7 +1,7 @@
 // app/search.tsx
 import { Ionicons } from '@expo/vector-icons';
 import * as React from 'react';
-import { Image, View, StyleSheet, Text, TextInput, TouchableOpacity, ScrollView, SafeAreaView, useWindowDimensions } from 'react-native';
+import { View, StyleSheet, Text, TextInput, TouchableOpacity, ScrollView, SafeAreaView, useWindowDimensions, Animated } from 'react-native';
 import { useTheme } from '@/src/context/Theme/ThemeContext';
 import TitleSection from '@/src/components/ui/TitleSection';
 import apiClient from '@/src/api/client';
@@ -12,115 +12,161 @@ import { convertFormattedRecipe } from '@/src/utils/constant';
 
 const Search = () => {
   const { theme } = useTheme();
-  const [activeCategory, setActiveCategory] = React.useState(0);
   const [menus, setMenus] = React.useState<IRECIPE[]>([]);
   const [loading, setLoading] = React.useState(true);
-  const [categoryLoading, setCategoryLoading] = React.useState(true);
+  const [searchText, setSearchText] = React.useState('');
+  const [moodRecipes, setMoodRecipes] = React.useState<IRECIPE[]>([]);
 
   const { width } = useWindowDimensions();
   const cardWidth = width * 0.44;
 
-  const [categories, setCategories] = React.useState([
-    { label: 'Salad', icon: 'https://vjcooks.com/wp-content/uploads/2022/05/VJcooks_KidsPastaSalad_8-360x480.jpg' },
-    { label: 'Pizza', icon: 'https://img.freepik.com/free-photo/pizza-pizza-filled-with-tomatoes-salami-olives_140725-1200.jpg' },
-    { label: 'Burger', icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLmLX7X-iZavaUWZaZLzcnvugr3uMWD5OmQLDgY1OfMcQ5c7nv65fDG5PVdA4OODE4Y-qD_IGFZv08gliJuV5PsaunOov-og8pSiAx0VOzAg' },
-    { label: 'Steak', icon: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_LmXCg5oPfWo_URI2uI5ChWCogQKhCxuWMZvFX_SiOA1BDeP-yWSqAp8lZx30VuYWvSJWZJk4XH4sp7hY23C19vZu6tk7CEtjlTeLHhNk&s=10' },
-    { label: 'Sea Food', icon: 'https://i.gojekapi.com/darkroom/gofood-indonesia/v2/images/uploads/77ef47b2-c289-46be-8660-74f4c93a8676_c76e6ac4-da09-422f-bc5b-33d378849430_Go-Biz_20190323_005453.jpeg?auto=format' },
-    { label: 'Dessert', icon: 'https://img.freepik.com/free-photo/chocolate-cake-isolated-white-background_144627-20941.jpg' },
-    { label: 'Smoothie', icon: 'https://img.freepik.com/free-photo/glass-smoothie-with-fruits-strawberries-blueberries_144627-20945.jpg' },
-  ]);
+  const scaleAnim = React.useRef(new Animated.Value(1)).current;
+  const bounceTimeout = React.useRef<NodeJS.Timeout | number | null>(null);
 
-  const getDataTags = async () => {
+  const fetchSearch = async (text: string) => {
     try {
-      setCategoryLoading(true);
-      const data: string[] = await apiClient('/tags');
-      const allTags: string[] = data.splice(10, 17);
-      const uniqueTags = [...new Set(allTags)].slice(0, 7);
-
-      setCategories((prev) =>
-        prev.map((item, index) => ({
-          ...item,
-          label: uniqueTags[index] ?? item.label,
-        }))
-      );
+      const data = await apiClient('/search', { q: text });
+      if (data && Array.isArray(data.recipes)) {
+        const formatted = convertFormattedRecipe(data.recipes, theme);
+        setMenus(formatted);
+      }
     } catch (error) {
-      console.error('Failed to fetch tags:', error);
+      console.error('Failed to load recipes:', error);
     } finally {
-      setCategoryLoading(false);
+      setLoading(false);
     }
   };
 
+  const debouncedBounce = (text: string) => {
+    if (bounceTimeout.current) clearTimeout(bounceTimeout.current);
+    bounceTimeout.current = setTimeout(() => {
+      Animated.sequence([
+        Animated.timing(scaleAnim, {
+          toValue: 1.03,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          friction: 6,
+          tension: 80,
+          useNativeDriver: true,
+        }),
+      ]).start();
+      fetchSearch(text);
+    }, 300) as unknown as number;
+    setSearchText(text);
+  };
+
   React.useEffect(() => {
-    const fetchRecipes = async () => {
+    return () => {
+      if (bounceTimeout.current) clearTimeout(bounceTimeout.current);
+    };
+  }, []);
+
+  React.useEffect(() => {
+    const fetchData = async () => {
       try {
-        const data = await apiClient('/', { limit: 6 });
-        if (data && Array.isArray(data.recipes)) {
-          const formatted = convertFormattedRecipe(data.recipes, theme);
-          setMenus(formatted);
-        }
+        const data = await apiClient('/', { limit: 50 });
+        const recipes = data.recipes.map((r: any) => convertFormattedRecipe([r], theme)[0]);
+        const cozy = recipes.find((r: any) => r.cuisine === 'Italian' && r.mealType?.includes('Dinner')) || recipes[0];
+        const energize = recipes.find((r: any) => r.mealType?.includes('Breakfast') && r.cuisine === 'Smoothie') || recipes[1];
+        const comfort = recipes.find((r: any) => r.cuisine === 'Asian' && r.mealType?.includes('Dinner')) || recipes[2];
+        setMoodRecipes([cozy, energize, comfort]);
+        const initial = recipes.slice(0, 6);
+        setMenus(initial);
       } catch (error) {
-        console.error('Failed to load recipes:', error);
+        console.error('Failed to load data:', error);
       } finally {
         setLoading(false);
       }
     };
-
-    fetchRecipes();
+    fetchData();
   }, [theme]);
 
-
-  React.useEffect(() => {
-    getDataTags();
-  }, []);
+  const moodCards = [
+    { title: 'Feeling Cozy?', subtitle: 'Warm up with Italian comfort', recipe: moodRecipes[0] },
+    { title: 'Need Energy?', subtitle: 'Fuel your day right', recipe: moodRecipes[1] },
+    { title: 'Craving Comfort?', subtitle: 'Satisfy with bold flavors', recipe: moodRecipes[2] },
+  ];
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background }]}>
       <View style={styles.container}>
-        <View style={[styles.searchBar, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
-          <Ionicons name="search" size={20} color={theme.colors.textSecondary} style={styles.searchIcon} />
-          <TextInput
-            style={[styles.searchInput, { color: theme.colors.text }]}
-            placeholder="Search recipes"
-            placeholderTextColor={theme.colors.textHint}
-          />
-          <TouchableOpacity style={styles.filterButton}>
-            <Ionicons name="filter" size={20} color={theme.colors.text} />
-          </TouchableOpacity>
-        </View>
-
-
-        <TitleSection title='Recipe' buttonTitle='See All' paddingHorizontal={0} onPress={() => { }} />
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryScroll}>
-          {categoryLoading ? Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} cardWidth={80} />) : categories.map((item, index) => (
-            <TouchableOpacity
-              key={index}
-              style={[
-                styles.categoryItem,
-                {
-                  backgroundColor: activeCategory === index ? theme.colors.primaryLight : theme.colors.surface,
-                  borderColor: activeCategory === index ? theme.colors.primary : theme.colors.border,
-                },
-              ]}
-              onPress={() => setActiveCategory(index)}
-            >
-              <Image source={{ uri: item.icon }} style={styles.categoryIcon} />
-              <Text
-                style={[
-                  styles.categoryLabel,
-                  {
-                    color: activeCategory === index ? '#ffff' : theme.colors.textSecondary,
-                    fontFamily: activeCategory === index ? theme.fonts.bold : theme.fonts.regular,
-                  },
-                ]}
-              >
-                {item.label}
-              </Text>
+        <Animated.View style={[styles.searchBarWrapper, { transform: [{ scale: scaleAnim }] }]}>
+          <View style={[styles.searchBar, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+            <Ionicons name="search" size={20} color={theme.colors.textSecondary} style={styles.searchIcon} />
+            <TextInput
+              style={[styles.searchInput, { color: theme.colors.text }]}
+              placeholder="Search recipes"
+              placeholderTextColor={theme.colors.textHint}
+              value={searchText}
+              onChangeText={(text) => debouncedBounce(text)}
+            />
+            <TouchableOpacity style={styles.filterButton}>
+              <Ionicons name="filter" size={20} color={theme.colors.text} />
             </TouchableOpacity>
-          ))}
-        </ScrollView>
+          </View>
+        </Animated.View>
 
-        <ScrollView>
-          <Items entries={menus} isLoading={loading} cardWidth={cardWidth} />
+        {
+          !searchText && (
+            <View>
+              <TitleSection title='For Your Mood' buttonTitle='See All' paddingHorizontal={0} onPress={() => { }} />
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.moodScroll}
+              >
+                {moodRecipes.length > 0 ? moodCards.map((card, index) => (
+                  <View
+                    key={index}
+                    style={styles.moodCard}
+                  >
+                    <View style={styles.moodImageContainer}>
+                      <View style={[styles.moodImageOverlay, { backgroundColor: card.recipe?.color || theme.colors.primary }]} />
+                      <Text style={{
+                        ...styles.moodTitle,
+                        color: theme.colors.text
+                      }}>{card.title}</Text>
+                      <Text style={styles.moodSubtitle}>{card.subtitle}</Text>
+                      <Text style={styles.moodRecipe}>{card.recipe?.name}</Text>
+                    </View>
+                  </View>
+                )) : Array.from({ length: 3 }).map((_, i) => (
+                  <View key={i} style={[styles.moodCard, { backgroundColor: theme.colors.surface }]}>
+                    <View style={styles.moodImageContainer}>
+                      <View style={[styles.moodImageOverlay, { backgroundColor: `${theme.colors.primary}20` }]} />
+                      <Text style={[{
+                        ...styles.moodTitle,
+                        color: theme.colors.text
+                      }, { color: theme.colors.textHint }]}>Loading...</Text>
+                    </View>
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+          )
+        }
+
+        <TitleSection title='Popular Recipes' buttonTitle='See All' paddingHorizontal={0} onPress={() => { }} />
+        <ScrollView style={{ minHeight: 300 }}>
+          {loading ? (
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 10 }}>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <SkeletonCard key={i} cardWidth={cardWidth} />
+              ))}
+            </View>
+          ) : menus.length > 0 ? (
+            <Items entries={menus} isLoading={false} cardWidth={cardWidth} />
+          ) : (
+            <View style={styles.emptyState}>
+              <Ionicons name="search-outline" size={48} color={theme.colors.textHint} />
+              <Text style={[styles.emptyText, { color: theme.colors.textSecondary }]}>
+                No recipes found
+              </Text>
+            </View>
+          )}
         </ScrollView>
       </View>
     </SafeAreaView>
@@ -136,13 +182,15 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
   },
+  searchBarWrapper: {
+    marginBottom: 24,
+  },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 25,
     paddingHorizontal: 15,
     paddingVertical: 10,
-    marginBottom: 20,
     borderWidth: 1,
   },
   searchIcon: {
@@ -156,89 +204,50 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     padding: 5,
   },
-  categoryScroll: {
-    marginBottom: 24,
+  moodScroll: {
+    height: 150,
+    marginBottom: 28,
   },
-  categoryItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 30,
-    marginHorizontal: 6,
-    borderRadius: 14,
-    minWidth: 88,
-    // height: 88,
+  moodCard: {
+    width: 200,
+    borderRadius: 20,
+    marginRight: 16,
+    overflow: 'hidden',
   },
-  categoryIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginBottom: 6,
-  },
-  categoryLabel: {
-    fontSize: 12,
-    textAlign: 'center',
-  },
-  scrollContent: {
-    paddingBottom: 80,
-  },
-  recipeCard: {
-    borderRadius: 15,
-    padding: 15,
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-  },
-  recipeInfo: {
+  moodImageContainer: {
     flex: 1,
+    padding: 16,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
-  recipeTitle: {
+  moodImageOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    opacity: 0.85,
+  },
+  moodTitle: {
     fontSize: 18,
-    fontFamily: 'Inter_700Bold',
-    marginBottom: 5,
+    fontWeight: 'bold',
+    marginBottom: 4,
   },
-  timeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-  },
-  timeText: {
+  moodSubtitle: {
     fontSize: 13,
+    opacity: 0.9,
+    marginBottom: 8,
   },
-  recipeImageContainer: {
-    position: 'relative',
+  moodRecipe: {
+    fontSize: 14,
+    fontWeight: '600',
   },
-  recipeImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 12,
-  },
-  heartButton: {
-    position: 'absolute',
-    top: 5,
-    right: 5,
-    borderRadius: 10,
-    padding: 2,
-  },
-  seeRecipeButtonFull: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 15,
-    paddingVertical: 12,
-    paddingHorizontal: 15,
-    marginBottom: 20,
-    borderWidth: 1,
+    paddingVertical: 40,
   },
-  seeRecipeButtonText: {
+  emptyText: {
     fontSize: 16,
-    fontFamily: 'Inter_700Bold',
-  },
-  chatIconWrapper: {
-    borderRadius: 10,
-    padding: 4,
+    marginTop: 12,
+    fontFamily: 'Inter_400Regular',
   },
 });
 
