@@ -1,3 +1,4 @@
+// app/recipe/[id]/index.tsx
 import * as React from 'react';
 import {
   SafeAreaView,
@@ -7,6 +8,7 @@ import {
   View,
   Image,
   TouchableOpacity,
+  Animated,
   Dimensions,
 } from 'react-native';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
@@ -23,6 +25,10 @@ const RecipeDetail = () => {
   const navigation = useNavigation();
   const [recipe, setRecipe] = React.useState<IDetailRecipe | null>(null);
   const { theme } = useTheme();
+  const [expandedIndex, setExpandedIndex] = React.useState<number | null>(
+    null
+  );
+  const animatedValues = React.useRef<Animated.Value[]>([]).current;
 
   React.useLayoutEffect(() => {
     navigation.setOptions({ headerShown: false });
@@ -34,21 +40,59 @@ const RecipeDetail = () => {
         const resp = await apiClient(`/${id}`);
         if (resp) {
           setRecipe(resp);
+          animatedValues.length = 0;
+          for (let i = 0; i < (resp.ingredients?.length || 0); i++) {
+            animatedValues.push(new Animated.Value(0));
+          }
         }
       } catch (error) {
         console.log('Error fetching recipe:', error);
       }
     };
     fetchRecipe();
-  }, [id]);
+  }, [animatedValues, id]);
 
-  const handleSave = () => {};
+  const toggleAccordion = (index: number) => {
+    if (expandedIndex === index) {
+      Animated.timing(animatedValues[index], {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: false,
+      }).start();
+      setExpandedIndex(null);
+    } else {
+      if (expandedIndex !== null) {
+        Animated.timing(animatedValues[expandedIndex], {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: false,
+        }).start();
+      }
+      Animated.timing(animatedValues[index], {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: false,
+      }).start();
+      setExpandedIndex(index);
+    }
+  };
+
+  const handleSave = () => { };
 
   if (!recipe) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <SafeAreaView
+        style={[
+          styles.container,
+          { backgroundColor: theme.colors.background },
+        ]}>
         <View style={styles.headerImageContainer}>
-          <View style={[styles.skeleton, { width: '100%', height: 320, borderRadius: 0 }]} />
+          <View
+            style={[
+              styles.skeleton,
+              { width: '100%', height: 320, borderRadius: 0 },
+            ]}
+          />
           <View style={[styles.skeleton, styles.skeletonTitle]} />
         </View>
 
@@ -62,15 +106,26 @@ const RecipeDetail = () => {
         </View>
 
         <View style={styles.section}>
-          <View style={[styles.skeleton, styles.skeletonSectionTitle]} />
-          <View style={[styles.skeleton, styles.skeletonDescription]} />
-          <View style={[styles.skeleton, styles.skeletonDescription]} />
+          <View
+            style={[styles.skeleton, styles.skeletonSectionTitle]}
+          />
+          <View
+            style={[styles.skeleton, styles.skeletonDescription]}
+          />
+          <View
+            style={[styles.skeleton, styles.skeletonDescription]}
+          />
         </View>
 
         <View style={styles.section}>
-          <View style={[styles.skeleton, styles.skeletonSectionTitle]} />
+          <View
+            style={[styles.skeleton, styles.skeletonSectionTitle]}
+          />
           {[...Array(6)].map((_, i) => (
-            <View key={i} style={[styles.skeleton, styles.skeletonIngredient]} />
+            <View
+              key={i}
+              style={[styles.skeleton, styles.skeletonIngredient]}
+            />
           ))}
         </View>
 
@@ -82,34 +137,58 @@ const RecipeDetail = () => {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <SafeAreaView
+      style={[
+        styles.container,
+        { backgroundColor: theme.colors.background },
+      ]}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.headerImageContainer}>
           <Image
             source={{ uri: recipe.image }}
             style={styles.headerImage}
-            resizeMode="cover"
+            resizeMode='cover'
           />
           <LinearGradient
-            colors={['rgba(0,0,0,0.2)', 'transparent', theme.colors.background]}
+            colors={[
+              'rgba(0,0,0,0.2)',
+              'transparent',
+              theme.colors.background,
+            ]}
             style={styles.overlay}
           />
           <View style={styles.headerTopBar}>
             <TouchableOpacity
               onPress={() => navigation.goBack()}
-              style={[styles.iconButton, { backgroundColor: 'rgba(255,255,255,0.15)' }]}
-            >
-              <AntDesign name="arrow-left" size={20} color="#FFFFFF" />
+              style={[
+                styles.iconButton,
+                { backgroundColor: 'rgba(255,255,255,0.15)' },
+              ]}>
+              <AntDesign
+                name='arrow-left'
+                size={20}
+                color='#FFFFFF'
+              />
             </TouchableOpacity>
             <TouchableOpacity
               onPress={handleSave}
-              style={[styles.iconButton, { backgroundColor: 'rgba(255,255,255,0.15)' }]}
-            >
-              <Ionicons name="heart-outline" size={22} color="#FFFFFF" />
+              style={[
+                styles.iconButton,
+                { backgroundColor: 'rgba(255,255,255,0.15)' },
+              ]}>
+              <Ionicons
+                name='heart-outline'
+                size={22}
+                color='#FFFFFF'
+              />
             </TouchableOpacity>
           </View>
           <View style={styles.headerContent}>
-            <Text style={[styles.recipeTitle, { color: theme.colors.text }]}>
+            <Text
+              style={[
+                styles.recipeTitle,
+                { color: theme.colors.text },
+              ]}>
               {recipe.name}
             </Text>
           </View>
@@ -117,15 +196,29 @@ const RecipeDetail = () => {
 
         <View style={styles.infoCardContainer}>
           {[
-            { icon: 'clock-circle', label: `${recipe.prepTimeMinutes + (recipe.cookTimeMinutes || 0)} min` },
+            {
+              icon: 'clock-circle',
+              label: `${recipe.prepTimeMinutes +
+                (recipe.cookTimeMinutes || 0)
+                } min`,
+            },
             { icon: null, label: recipe.difficulty || 'Medium' },
-            { icon: 'fire', label: `${recipe.caloriesPerServing || 'N/A'} cal` },
-            { icon: 'star', label: `${recipe.rating || '4.5'}`, color: theme.colors.primary },
+            {
+              icon: 'fire',
+              label: `${recipe.caloriesPerServing || 'N/A'} cal`,
+            },
+            {
+              icon: 'star',
+              label: `${recipe.rating || '4.5'}`,
+              color: theme.colors.primary,
+            },
           ].map((item, idx) => (
             <View
               key={idx}
-              style={[styles.infoCard, { backgroundColor: theme.colors.surface }]}
-            >
+              style={[
+                styles.infoCard,
+                { backgroundColor: theme.colors.surface },
+              ]}>
               {item.icon && (
                 <AntDesign
                   name={item.icon as any}
@@ -134,7 +227,11 @@ const RecipeDetail = () => {
                   style={styles.infoIcon}
                 />
               )}
-              <Text style={[styles.infoCardText, { color: theme.colors.text }]}>
+              <Text
+                style={[
+                  styles.infoCardText,
+                  { color: theme.colors.text },
+                ]}>
                 {item.label}
               </Text>
             </View>
@@ -142,43 +239,141 @@ const RecipeDetail = () => {
         </View>
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
+          <Text
+            style={[
+              styles.sectionTitle,
+              { color: theme.colors.text },
+            ]}>
             Description
           </Text>
-          <Text style={[styles.description, { color: theme.colors.text }]}>
-            {recipe.instructions?.join('\n\n') || 'No instructions available.'}
+          <Text
+            style={[
+              styles.description,
+              { color: theme.colors.text },
+            ]}>
+            {recipe.instructions?.join('\n\n') ||
+              'No instructions available.'}
           </Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
+          <Text
+            style={[
+              styles.sectionTitle,
+              { color: theme.colors.text },
+            ]}>
             Ingredients
           </Text>
-          {recipe.ingredients?.map((item, index) => (
-            <View
-              key={index}
-              style={[
-                styles.ingredientItem,
-                {
-                  backgroundColor: theme.colors.surface,
-                  marginBottom: 10,
-                },
-              ]}
-            >
-              <View style={[styles.ingredientIcon, { backgroundColor: theme.colors.primary + '20' }]}>
-                <AntDesign name="bars" size={16} color={theme.colors.primary} />
+          {recipe.ingredients?.map((item, index) => {
+            const animatedHeight =
+              animatedValues[index]?.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, 60],
+              }) || 0;
+            return (
+              <View key={index}>
+                <TouchableOpacity
+                  style={[
+                    styles.ingredientItem,
+                    {
+                      backgroundColor:
+                        theme.colors.surface,
+                      marginBottom: 10,
+                    },
+                  ]}
+                  onPress={() => toggleAccordion(index)}>
+                  <View
+                    style={[
+                      styles.ingredientIcon,
+                      {
+                        backgroundColor:
+                          theme.colors.primary + '20',
+                      },
+                    ]}>
+                    <AntDesign
+                      name='bars'
+                      size={16}
+                      color={theme.colors.primary}
+                    />
+                  </View>
+                  <Text
+                    style={[
+                      styles.ingredientName,
+                      { color: theme.colors.text },
+                    ]}>
+                    {item}
+                  </Text>
+                  <Ionicons
+                    name={
+                      expandedIndex === index
+                        ? 'chevron-up'
+                        : 'chevron-down'
+                    }
+                    size={18}
+                    color={theme.colors.textHint}
+                  />
+                </TouchableOpacity>
+                <Animated.View
+                  style={{
+                    height: animatedHeight,
+                    overflow: 'hidden',
+                  }}>
+                  <View
+                    style={[
+                      styles.accordionContent,
+                      {
+                        backgroundColor:
+                          theme.colors.surface,
+                      },
+                    ]}>
+                    <Text
+                      style={[
+                        styles.accordionText,
+                        {
+                          color: theme.colors
+                            .textSecondary,
+                        },
+                      ]}>
+                      Lorem ipsum dolor sit, amet
+                      consectetur adipisicing elit.
+                      Molestias, temporibus eos. Velit
+                      animi beatae qui? Suscipit, esse hic
+                      corrupti nulla quidem eius expedita
+                      corporis praesentium, aliquid
+                      voluptatibus magnam reprehenderit
+                      consectetur voluptatem voluptas
+                      sequi? Tenetur praesentium ipsam
+                      doloribus earum eos harum assumenda
+                      repellendus dolores facere excepturi
+                      aliquid provident unde, molestiae
+                      doloremque! Assumenda sed ipsa
+                      consequatur eos, est dicta quis
+                      accusantium sint repudiandae itaque
+                      pariatur? Iusto voluptas aspernatur
+                      et tempora sapiente assumenda ex,
+                      facere unde soluta illo!
+                      Necessitatibus blanditiis laudantium
+                      iste fugiat repudiandae qui ratione
+                      accusamus porro alias nisi? Sequi
+                      quo similique dolor distinctio,
+                      repudiandae, nisi hic, ex nesciunt
+                      impedit minima ab?
+                    </Text>
+                  </View>
+                </Animated.View>
               </View>
-              <Text style={[styles.ingredientName, { color: theme.colors.text }]}>{item}</Text>
-            </View>
-          ))}
+            );
+          })}
         </View>
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity
-            style={[styles.watchButton, { backgroundColor: theme.colors.primary }]}
-            activeOpacity={0.85}
-          >
-            <AntDesign name="play-circle" size={20} color="#fff" />
+            style={[
+              styles.watchButton,
+              { backgroundColor: theme.colors.primary },
+            ]}
+            activeOpacity={0.85}>
+            <AntDesign name='play-circle' size={20} color='#fff' />
             <Text style={styles.watchButtonText}>Watch Video</Text>
           </TouchableOpacity>
         </View>
@@ -299,6 +494,17 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: 'sans-serif',
   },
+  accordionContent: {
+    padding: 16,
+    paddingTop: 8,
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+  },
+  accordionText: {
+    fontSize: 14,
+    lineHeight: 20,
+    fontFamily: 'sans-serif',
+  },
   buttonContainer: {
     paddingHorizontal: 20,
     alignItems: 'center',
@@ -318,8 +524,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontFamily: 'sans-serif-medium',
   },
-
-  // Skeleton styles
   skeleton: {
     backgroundColor: '#00000020',
   },
