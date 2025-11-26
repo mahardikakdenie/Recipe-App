@@ -1,50 +1,47 @@
-# Welcome to your Expo app 👋
+# Flavorful 🌿  
+A modern, clean, and responsive recipe discovery app built with **React Native (Expo)**.
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+![Flavorful App Preview](https://via.placeholder.com/400x800/f8fbf8/1b5e20?text=Flavorful+App)  
+*(Ganti dengan screenshot nyata saat deploy)*
 
-## Get started
+---
 
-1. Install dependencies
+## ✨ Features
 
-   ```bash
-   npm install
-   ```
+- **Auth System**: Email/password + Google SSO (Firebase & Supabase ready)
+- **Recipe Discovery**: Browse, search, and save recipes from [dummyjson.com](https://dummyjson.com/recipes)
+- **Personalized Mood-Based Recommendations**: "Feeling cozy? Try this..."
+- **Food Journal**: Track what you cook & eat daily
+- **Responsive Grid**: Always 2-column layout on any device
+- **Modern UI**: Clean, green-themed, Material Design without shadows
+- **Offline Support**: Persistent auth & loading states
+- **TypeScript + Expo Router** for scalable architecture
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## 🛠 Tech Stack
 
-In the output, you'll find options to open the app in a
+- **Framework**: [Expo](https://expo.dev/)
+- **Navigation**: [Expo Router](https://docs.expo.dev/router/introduction/)
+- **Language**: TypeScript
+- **Styling**: `StyleSheet` + custom `ThemeContext`
+- **State**: React Hooks + custom contexts (`AuthContext`, `ThemeContext`)
+- **Auth**: Firebase Authentication (Email/Google) + Supabase fallback
+- **API**: [dummyjson.com/recipes](https://dummyjson.com/recipes) (50+ real recipes)
+- **UI Components**: Custom cards, skeletons, animated search
+- **Fonts**: Inter (via `@expo-google-fonts/inter`)
+- **Icons**: `@expo/vector-icons`
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+---
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## 🚀 Quick Start
 
-## Get a fresh project
+### Prerequisites
+- Node.js ≥ 18
+- Expo CLI: `npm install -g @expo/cli`
 
-When you're ready, run:
-
+### Installation
 ```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+git clone https://github.com/your-username/flavorful-app.git
+cd flavorful-app
+npm install
