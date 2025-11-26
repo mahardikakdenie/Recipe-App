@@ -19,7 +19,7 @@ function RootLayoutNav() {
     <Stack
       screenOptions={{
         header: (props) => <AppBar />,
-        headerShown: path !== '/auth',
+        headerShown: !['/auth', '/chef'].includes(path),
         headerShadowVisible: false,
       }}
     >
