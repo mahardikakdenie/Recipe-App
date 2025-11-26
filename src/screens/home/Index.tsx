@@ -5,7 +5,7 @@ import { Text, View, ScrollView, TouchableOpacity, ImageBackground, ActivityIndi
 import useHomeHooks from './hooks/useHome.hook';
 import SummaryCards from '@/src/components/ui/summaryCard/Card';
 import TitleSection from '@/src/components/ui/TitleSection';
-import styles from './styles/home.styles';
+import styles from './styles/home.style';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { IRECIPE } from '@/src/types/recipe';
