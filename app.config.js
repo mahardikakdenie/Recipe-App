@@ -40,6 +40,7 @@ export default {
       package: 'com.example.recipeApp',
       edgeToEdgeEnabled: true,
       predictiveBackGestureEnabled: false,
+      displayName: "Recipe App",
     },
     web: {
       output: 'static',
