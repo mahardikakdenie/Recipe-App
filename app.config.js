@@ -74,6 +74,8 @@ export default {
         ? process.env.API_BASE_URL_DEV || 'http://10.0.2.2:8000/api'
         : process.env.API_BASE_URL_PROD || 'https://api.yourdomain.com',
 
+      apiBaseRestaurantUrl: process.env.API_BASE_RESTAURANT,
+      
       // Firebase Config
       apiSupabaseUrl: process.env.API_BASE || '',
       firebaseApiKey: process.env.EXPO_FIREBASE_API_KEY,
