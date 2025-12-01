@@ -13,6 +13,7 @@ import { useTheme } from '@/src/context/Theme/ThemeContext';
 import { useNavigation, useRouter } from 'expo-router';
 import RestaurantClient from '@/src/api/restaurantClient';
 import SkeletonCard from '@/src/components/loading/skeleton';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export interface IRESTAURANT {
     restaurantID: number;
@@ -61,129 +62,131 @@ const ChefPage = () => {
     }, []);
 
     return (
-        <ScrollView
-            contentContainerStyle={[
-                styles.container,
-                { backgroundColor: theme.colors.background },
-            ]}
-            showsVerticalScrollIndicator={false}>
-            <Text
-                style={[
-                    styles.title,
-                    { color: theme.colors.text, fontFamily: theme.fonts.bold },
-                ]}>
-                Nearby Restaurants
-            </Text>
-            <Text
-                style={[
-                    styles.subtitle,
-                    {
-                        color: theme.colors.textSecondary,
-                        fontFamily: theme.fonts.regular,
-                    },
-                ]}>
-                Explore great places to eat around you
-            </Text>
+        <SafeAreaView>
+            <ScrollView
+                contentContainerStyle={[
+                    styles.container,
+                    { backgroundColor: theme.colors.background },
+                ]}
+                showsVerticalScrollIndicator={false}>
+                <Text
+                    style={[
+                        styles.title,
+                        { color: theme.colors.text, fontFamily: theme.fonts.bold },
+                    ]}>
+                    Nearby Restaurants
+                </Text>
+                <Text
+                    style={[
+                        styles.subtitle,
+                        {
+                            color: theme.colors.textSecondary,
+                            fontFamily: theme.fonts.regular,
+                        },
+                    ]}>
+                    Explore great places to eat around you
+                </Text>
 
-            <View style={styles.grid}>
-                {isLoading ? Array.from({ length: 4 }).map((_, i) => <View key={i} style={[
-                    styles.card,
-                    {
-                        width: CARD_WIDTH,
-                        backgroundColor: theme.colors.surface,
-                    },
-                ]}>
-                    <SkeletonCard cardWidth={CARD_WIDTH} />
+                <View style={styles.grid}>
+                    {isLoading ? Array.from({ length: 4 }).map((_, i) => <View key={i} style={[
+                        styles.card,
+                        {
+                            width: CARD_WIDTH,
+                            backgroundColor: theme.colors.surface,
+                        },
+                    ]}>
+                        <SkeletonCard cardWidth={CARD_WIDTH} />
 
-                </View>) : restaurants.map((restaurant) => (
-                    <TouchableOpacity
-                        key={restaurant.restaurantID}
-                        style={[
-                            styles.card,
-                            {
-                                width: CARD_WIDTH,
-                                backgroundColor: theme.colors.surface,
-                            },
-                        ]}
-                        onPress={() => {
-                            navigateToDetail(restaurant.restaurantID);
-                        }}>
-                        <View style={styles.content}>
-                            <View
-                                style={[
-                                    styles.iconContainer,
-                                    {
-                                        backgroundColor: `${theme.colors.primary}10`,
-                                    },
-                                ]}>
-                                <Ionicons
-                                    name='location-outline'
-                                    size={18}
-                                    color={theme.colors.primary}
-                                />
-                            </View>
-                            <Text
-                                style={[
-                                    styles.name,
-                                    {
-                                        color: theme.colors.text,
-                                        fontFamily: theme.fonts.bold,
-                                    },
-                                ]}
-                                numberOfLines={1}>
-                                {restaurant.restaurantName}
-                            </Text>
-                            <Text
-                                style={[
-                                    styles.address,
-                                    {
-                                        color: theme.colors.textSecondary,
-                                        fontFamily: theme.fonts.regular,
-                                    },
-                                ]}
-                                numberOfLines={2}>
-                                {restaurant.address}
-                            </Text>
-                            <View style={styles.metaRow}>
-                                <View style={styles.metaItem}>
+                    </View>) : restaurants.map((restaurant) => (
+                        <TouchableOpacity
+                            key={restaurant.restaurantID}
+                            style={[
+                                styles.card,
+                                {
+                                    width: CARD_WIDTH,
+                                    backgroundColor: theme.colors.surface,
+                                },
+                            ]}
+                            onPress={() => {
+                                navigateToDetail(restaurant.restaurantID);
+                            }}>
+                            <View style={styles.content}>
+                                <View
+                                    style={[
+                                        styles.iconContainer,
+                                        {
+                                            backgroundColor: `${theme.colors.primary}10`,
+                                        },
+                                    ]}>
                                     <Ionicons
-                                        name='pricetag-outline'
-                                        size={12}
-                                        color={theme.colors.textHint}
+                                        name='location-outline'
+                                        size={18}
+                                        color={theme.colors.primary}
                                     />
-                                    <Text
-                                        style={[
-                                            styles.metaText,
-                                            { color: theme.colors.textHint },
-                                        ]}>
-                                        {restaurant.type}
-                                    </Text>
                                 </View>
-                                <View style={styles.metaItem}>
-                                    <Ionicons
-                                        name={
-                                            restaurant.parkingLot ===
-                                                'Available'
-                                                ? 'car-outline'
-                                                : 'car-sport-outline'
-                                        }
-                                        size={12}
-                                        color={theme.colors.textHint}
-                                    />
-                                    <Text
-                                        style={[
-                                            styles.metaText,
-                                            { color: theme.colors.textHint },
-                                        ]}>
-                                        {restaurant.parkingLot}
-                                    </Text>
+                                <Text
+                                    style={[
+                                        styles.name,
+                                        {
+                                            color: theme.colors.text,
+                                            fontFamily: theme.fonts.bold,
+                                        },
+                                    ]}
+                                    numberOfLines={1}>
+                                    {restaurant.restaurantName}
+                                </Text>
+                                <Text
+                                    style={[
+                                        styles.address,
+                                        {
+                                            color: theme.colors.textSecondary,
+                                            fontFamily: theme.fonts.regular,
+                                        },
+                                    ]}
+                                    numberOfLines={2}>
+                                    {restaurant.address}
+                                </Text>
+                                <View style={styles.metaRow}>
+                                    <View style={styles.metaItem}>
+                                        <Ionicons
+                                            name='pricetag-outline'
+                                            size={12}
+                                            color={theme.colors.textHint}
+                                        />
+                                        <Text
+                                            style={[
+                                                styles.metaText,
+                                                { color: theme.colors.textHint },
+                                            ]}>
+                                            {restaurant.type}
+                                        </Text>
+                                    </View>
+                                    <View style={styles.metaItem}>
+                                        <Ionicons
+                                            name={
+                                                restaurant.parkingLot ===
+                                                    'Available'
+                                                    ? 'car-outline'
+                                                    : 'car-sport-outline'
+                                            }
+                                            size={12}
+                                            color={theme.colors.textHint}
+                                        />
+                                        <Text
+                                            style={[
+                                                styles.metaText,
+                                                { color: theme.colors.textHint },
+                                            ]}>
+                                            {restaurant.parkingLot}
+                                        </Text>
+                                    </View>
                                 </View>
                             </View>
-                        </View>
-                    </TouchableOpacity>
-                ))}
-            </View>
-        </ScrollView>
+                        </TouchableOpacity>
+                    ))}
+                </View>
+            </ScrollView>
+        </SafeAreaView>
     );
 };
 
