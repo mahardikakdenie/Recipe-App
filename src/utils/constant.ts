@@ -3,6 +3,7 @@ import { Theme } from '../context/Theme/ThemeContext';
 
 export const API_BASE_URL = Constants.expoConfig?.extra?.apiBaseUrl as string;
 export const API_BASE_RESTAURANT_URL= Constants?.expoConfig?.extra?.apiBaseRestaurantUrl as string;
+export const API_BASE_BE = Constants.expoConfig?.extra?.apiBaseBE as string;
 
 export const convertFormattedRecipe = (datas: any[], theme: Theme) => {
     return datas.map((item: any) => ({
