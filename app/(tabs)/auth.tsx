@@ -15,6 +15,7 @@ import { useTheme } from '@/src/context/Theme/ThemeContext';
 import { post } from '@/src/api/supabase';
 import { saveToken, saveUser } from '@/src/utils/storage';
 import { useAuth } from '@/src/context/Auth/AuthContext';
+import { API_BASE_BE } from '@/src/utils/constant';
 
 const dummyRecipes = [
   {
@@ -111,12 +112,12 @@ const AuthScreen = () => {
     setLoading(true);
     try {
       if (isLogin) {
-        const resp = await post('https://kanban-api-w839.onrender.com/auth/login', {
+        const resp = await post(`${API_BASE_BE}/api/auth/login`, {
           email,
           password,
         });
-        const token = resp.access_token;
-        const userData = resp.user;
+        const token = resp.data.access_token;
+        const userData = resp.data.user;
         await saveToken(token);
         await saveUser(userData);
         setUser(userData);
