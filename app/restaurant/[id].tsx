@@ -72,7 +72,7 @@ const RestaurantDetail = () => {
     );
   }
 
-  const restaurantName = `${recipe.cuisine} Kitchen`;
+  const restaurantName = `${recipe.name} Kitchen`;
   const cardWidth = (width - 64) / 2;
 
   return (
