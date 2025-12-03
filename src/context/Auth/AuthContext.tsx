@@ -32,7 +32,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const getCurrentUser = async () => {
       const user = await getUser();
-      console.log("user : ", user);
       setUser(user);
     };
 
